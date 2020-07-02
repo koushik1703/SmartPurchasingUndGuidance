@@ -1,7 +1,13 @@
 import pika
 import sys
 import time
-from Server_PC1 import *
+from Working import *
+from firebase import firebase
+import datetime
+
+
+# Create the connection to our Firebase database - don't forget to change the URL!
+FBConn = firebase.FirebaseApplication('https://spug-ca0fe.firebaseio.com/', None)
 
 class Receiver_PC:
 
@@ -24,6 +30,8 @@ class Receiver_PC:
         Data_Copy =  open('Data_Rec_Pi.csv', 'w')
         
         Data_Copy.write("Date;Distance to Obstacle;IR Sensor Left;IR Sensor Middle;IR Sensor Right;\n")
+        
+        self.Server_PC1.Initialize_Values()
     
         def Write_into_CSV(body):
             x = format(body).split("%")
@@ -33,13 +41,21 @@ class Receiver_PC:
             IR_Mid = int(x[5])
             IR_Right = int(x[7])
             self.Server_PC1.Reply_From_PC(Distance,IR_Left,IR_Mid,IR_Right)
-            Data_Copy.write("%s;"%time.ctime())
-            Data_Copy.write("%d;"%Distance)
-            Data_Copy.write("%d;"%IR_Left)
-            Data_Copy.write("%d;"%IR_Mid)
-            Data_Copy.write("%d;\n"%IR_Right)
+            Data_Copy.write("%s;%d;%d;%d;%d;\n"%(time.ctime(),Distance,IR_Left,IR_Mid,IR_Right))
             Data_Copy.close()
-    
+            
+            # Create a dictionary to store the data before sending to the database
+            data_to_upload = {
+               'Time' : time.ctime(),
+               'Distance' :  Distance,
+               'IR_Left' :   IR_Left,
+               'IR_Mid' :   IR_Mid, 
+               'IR_Right' :   IR_Right               
+            }
+            #Post the data to the appropriate folder/branch within your database
+            result = FBConn.post('/SPUG_PI2PC_Data/',data_to_upload)
+            
+            
         def callback(ch, method, properties, body):
             print('Received: {}'.format(body))
             Write_into_CSV(body)

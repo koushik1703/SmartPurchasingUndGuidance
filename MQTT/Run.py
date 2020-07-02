@@ -57,20 +57,19 @@ class SPUG:
                     PWM.setMotorModel(600,600,600,600)
                     
                 elif(Movement_Type == 1):
-                     PWM.setMotorModel(-1500,-1500,2500,2500)
+                     PWM.setMotorModel(-2000,-2000,4000,4000)
                     
                 elif(Movement_Type == 3):
-                    PWM.setMotorModel(-1000,-1000,1600,1600)
+                    PWM.setMotorModel(-1200,-1200,2000,2000)
                     
                 elif(Movement_Type == 7):
-                    PWM.setMotorModel(1600,1600,-1000,-1000)
+                    PWM.setMotorModel(2000,2000,-1200,-1200)
                     
                 elif(Movement_Type == 9):
-                    PWM.setMotorModel(2500,2500,-1500,-1500)
+                    PWM.setMotorModel(4000,4000,-2000,-2000)
                     
                 elif(Movement_Type == 0):
                     PWM.setMotorModel(0,0,0,0)
-                    
     
             def callback(ch, method, properties, body):
                 print('Received from PC: {}'.format(body))
@@ -92,7 +91,7 @@ if __name__ == '__main__':
         l_spug.run()
         
     except KeyboardInterrupt:  # When 'Ctrl+C' is pressed, the child program destroy() will be  executed.
-        
         PWM.setMotorModel(0,0,0,0)
+
 
 

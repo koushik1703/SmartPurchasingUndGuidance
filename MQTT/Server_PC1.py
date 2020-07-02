@@ -14,6 +14,8 @@ class Server_PC1:
     def Reply_From_PC(self,Distance, IR_Left, IR_Mid, IR_Right):
     
         self.Move = 0
+        
+        self.Node_Passed = 0
 
         credentials = pika.PlainCredentials('newuser1', 'password')
 
