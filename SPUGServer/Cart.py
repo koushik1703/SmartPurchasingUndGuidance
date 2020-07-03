@@ -1,17 +1,16 @@
+from xml.etree.ElementTree import  Element, SubElement
+from XMLParsar import XMLParser
+
 class Cart:
 
-    def __init__(self, num):
-        self.num = num
-        self.isAssigned = False
+    def __init__(self):
+        cartRoot = Element('Carts')
 
-    def assign(self):
-        if self.isAssigned == False:
-            self.isAssigned = True
-            return 'Cart Assigned is to you', 200
-        else:
-            return 'Cart Already assigned to other user', 404
+        for i in range(20):
+            cartElement = SubElement(cartRoot, 'Cart')
+            cartElement.set("cartNum", str(i))
+            cartElement.set("name", "cart" + str(i))
+            cartElement.set("isAssigned", str(False))
 
-    def unassign(self):
-        if self.isAssigned == True:
-            self.isAssigned = False
-            return 'Cart Unassigned Successfully', 200
+
+        XMLParser.getInstance().writeAndPretify(cartRoot, "Carts.xml")

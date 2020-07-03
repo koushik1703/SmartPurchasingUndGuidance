@@ -1,23 +1,15 @@
-import paho.mqtt.client as mqtt
-import threading
+from xml.etree.ElementTree import  Element, SubElement
+from XMLParsar import XMLParser
 
 class Item:
-    def __init__(self, itemNum, name, count):
-        self.itemNum = itemNum
-        self.name = name
-        self.count = count
-        self.subscribe_to_changes()
 
-    def on_message(self):
-        self.count -= 1;
+    def __init__(self):
+        itemRoot = Element('Items')
 
-    def subscribe_to_changes(self):
-        self.mqtt_subsriber = mqtt.Client(self.name)
-        self.mqtt_subsriber.on_message = self.on_message
-        self.mqtt_subsriber.connect('127.0.0.1', 1883, 70)
-        self.mqtt_subsriber.subscribe('item/' + str(self.itemNum), qos=2)
-        self.thread = threading.Thread(target=self.startLooping)
-        self.thread.start()
+        for i in range(20):
+            itemElement = SubElement(itemRoot, 'Item')
+            itemElement.set("itemNum", str(i))
+            itemElement.set("name", "item" + str(i))
+            itemElement.set("count", str(500))
 
-    def startLooping(self):
-        self.mqtt_subsriber.loop_forever()
+        XMLParser.getInstance().writeAndPretify(itemRoot, "Items.xml")
