@@ -1,6 +1,6 @@
 <Carts>
   <Cart cartNum="0" name="cart0" isAssigned="False" AssignedToDevice=""/>
-  <Cart cartNum="1" name="cart1" isAssigned="True" AssignedToDevice="2e88dbcf-317f-4c30-8714-0fa4524fb66e"/>
+  <Cart cartNum="1" name="cart1" isAssigned="False" AssignedToDevice=""/>
   <Cart cartNum="2" name="cart2" isAssigned="False" AssignedToDevice=""/>
   <Cart cartNum="3" name="cart3" isAssigned="False" AssignedToDevice=""/>
   <Cart cartNum="4" name="cart4" isAssigned="False" AssignedToDevice=""/>
