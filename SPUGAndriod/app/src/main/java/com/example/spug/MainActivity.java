@@ -8,13 +8,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.UUID;
+
 public class MainActivity extends AppCompatActivity {
 
     String resultText = null;
-    String hostUrl = "http://192.168.1.9:5000/";
+    String hostUrl = "http://192.168.0.104:5000/";
     static int cartNum;
     AppCompatActivity appCompatActivity = this;
     static TextView responseText;
+    static String uniqueID = UUID.randomUUID().toString();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
                 resultText = inputText.getText().toString();
                 cartNum = Integer.parseInt(resultText);
                  ConnAsyncTask connAsyncTask = new ConnAsyncTask(appCompatActivity, AddItems.class);
-                 connAsyncTask.execute(hostUrl + "getCart/" + resultText);
+                 connAsyncTask.execute(hostUrl + "getCart/" + resultText + "/" + uniqueID);
             }
         });
     }
