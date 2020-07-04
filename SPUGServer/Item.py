@@ -11,5 +11,6 @@ class Item:
             itemElement.set("itemNum", str(i))
             itemElement.set("name", "item" + str(i))
             itemElement.set("count", str(500))
+            itemElement.set("cost", str(100))
 
         XMLParser.getInstance().writeAndPretify(itemRoot, "Items.xml")

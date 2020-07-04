@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Resource, Api
 from Cart import Cart
 from Item import Item
@@ -18,15 +18,17 @@ class ItemCount(Resource):
         itemRoot = ElementTree.parse("Items.xml").getroot()
         itemQuery = ".//Item[@itemNum='" + str(itemNum) + "']"
         int(itemRoot.find(itemQuery).get('count'))
-        return {int(itemRoot.find(itemQuery).get('name')) : int(itemRoot.find(itemQuery).get('count'))}, 200
+        return {itemRoot.find(itemQuery).get('name') : itemRoot.find(itemQuery).get('count')}, 200
 
 
 class CartAssign(Resource):
-    def get(self, cartNum):
+    def get(self, cartNum, deviceId):
+
         cartRoot = ElementTree.parse("Carts.xml").getroot()
-        cartQuery = ".//Cart[@itemNum='" + str(cartNum) + "']"
+        cartQuery = ".//Cart[@cartNum='" + str(cartNum) + "']"
         if cartRoot.find(cartQuery).get('isAssigned') == "False":
             cartRoot.find(cartQuery).set('isAssigned', 'True')
+            cartRoot.find(cartQuery).set('AssignedToDevice', str(deviceId))
             XMLParser.getInstance().writeAndPretify(cartRoot, "Carts.xml")
             return 200
         else:
@@ -36,8 +38,9 @@ class CartAssign(Resource):
 class CartUnAssign(Resource):
     def get(self, cartNum):
         cartRoot = ElementTree.parse("Carts.xml").getroot()
-        cartQuery = ".//Cart[@itemNum='" + str(cartNum) + "']"
+        cartQuery = ".//Cart[@cartNum='" + str(cartNum) + "']"
         cartRoot.find(cartQuery).set('isAssigned', 'False')
+        cartRoot.find(cartQuery).set('AssignedToDevice', '')
         XMLParser.getInstance().writeAndPretify(cartRoot, "Carts.xml")
         return 200
 
@@ -57,7 +60,7 @@ def hello_world():
     return 'Hello World!'
 
 
-api.add_resource(CartAssign, '/getCart/<int:cartNum>')
+api.add_resource(CartAssign, '/getCart/<int:cartNum>/<deviceId>')
 api.add_resource(ItemCount, '/getItemCount/<int:itemNum>')
 api.add_resource(CartUnAssign, '/giveCart/<int:cartNum>')
 api.add_resource(IsPathOccupied, '/isPathOccupied/<int:fromX>/<int:fromY>/<int:toX>/<int:toY>')
@@ -74,15 +77,24 @@ if __name__ == '__main__':
     pathRoot = ElementTree.parse("Paths.xml").getroot()
 
     def on_message(client, userdata, message):
-
         if message.topic == 'item/':
             messageJson = json.loads(message.payload.decode())
             itemPurchased = messageJson["itemPurchased"]
+            cartName = messageJson["cartName"]
 
             itemRoot = ElementTree.parse("Items.xml").getroot()
+            cartRoot = ElementTree.parse("Carts.xml").getroot()
+            cartQuery = ".//Cart[@name='" + cartName + "']"
+            deviceIdOfCart = cartRoot.find(cartQuery).get('AssignedToDevice')
             itemQuery = ".//Item[@name='" + itemPurchased + "']"
             currCount = int(itemRoot.find(itemQuery).get('count')) - 1
+            costOfItem = itemRoot.find(itemQuery).get('cost')
+
+            message = {"itemPurchased": itemPurchased, "cost" : costOfItem}
+            jmsg = json.dumps(message)
+            mqtt_publisher.publish('deviceUpdate/' + deviceIdOfCart + '/', jmsg, 2)
             itemRoot.find(itemQuery).set('count', str(currCount))
+
             XMLParser.getInstance().writeAndPretify(itemRoot, "Items.xml")
 
         if message.topic == 'pathOccupy/':
@@ -114,8 +126,11 @@ if __name__ == '__main__':
             XMLParser.getInstance().writeAndPretify(pathRoot, "Paths.xml")
 
 
-    def startLooping():
+    def startLoopingSubscriber():
         mqtt_subscriber.loop_forever()
+
+    def startLoopingPublisher():
+        mqtt_publisher.loop_forever()
 
 
     mqtt_subscriber = mqtt.Client('item tracking receiver')
@@ -125,7 +140,11 @@ if __name__ == '__main__':
     mqtt_subscriber.subscribe('pathOccupy/', 2)
     mqtt_subscriber.subscribe('pathUnoccupy/', 2)
 
-    thread = threading.Thread(target=startLooping)
-    thread.start()
+    threadSubscriber = threading.Thread(target=startLoopingSubscriber)
+    threadSubscriber.start()
+
+    mqtt_publisher = mqtt.Client('Device update publisher')
+    mqtt_publisher.connect('192.168.0.104', 1883, 70)
+    threadPublisher = threading.Thread(target=startLoopingPublisher)
 
     app.run(host='0.0.0.0')
