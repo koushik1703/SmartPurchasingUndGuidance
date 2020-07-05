@@ -18,9 +18,10 @@ class PublisherSimulation:
     def startLooping(self):
         self.mqttPublisher.loop_start()
         while True:
-            message = { "itemPurchasedX" : str(randrange(5)), "itemPurchasedY" : str(randrange(5)), "cartName" : self.name}
+            message = { "itemPurchasedX" : str(randrange(5)), "itemPurchasedY" : str(randrange(5))}
             jmsg = json.dumps(message)
-            self.mqttPublisher.publish('item/', jmsg, 2)
+            self.mqttPublisher.publish('item/' + self.name + '/', jmsg, 2)
+            print('item/' + self.name + '/')
             time.sleep(self.interval)
 
 

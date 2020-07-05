@@ -2,6 +2,7 @@ package com.example.spug;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 
 public class UnAssignCartView extends AppCompatActivity {
 
-    String hostUrl = "http://192.168.0.104:5000/";
+    String hostUrl = "http://192.168.0.103:5000/";
     AppCompatActivity appCompatActivity = this;
 
     @Override
@@ -39,37 +40,17 @@ public class UnAssignCartView extends AppCompatActivity {
         });
 
         String clientId = MqttClient.generateClientId();
-        final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(this.getApplicationContext(), "tcp://192.168.0.104:1883", clientId, new MemoryPersistence());
-
-        MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-        mqttConnectOptions.setCleanSession(true);
+        final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(this.getApplicationContext(), "tcp://192.168.0.103:1883", clientId);
 
         try {
-            mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
+            IMqttToken token = mqttAndroidClient.connect();
+            token.setActionCallback(new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     try {
-                        String topic = "deviceUpdate/" + MainActivity.uniqueID + "/";
-                        mqttAndroidClient.subscribe(topic, 2);
-                        mqttAndroidClient.setCallback(new MqttCallback() {
-                            @Override
-                            public void connectionLost(Throwable cause) {
-
-                            }
-
-                            @Override
-                            public void messageArrived(String topic, MqttMessage message) throws Exception {
-                                JSONObject json = new JSONObject(new String(message.getPayload()));
-                                listOfItems.append(json.getString("itemPurchased") + " = " + json.getString("cost") + ";");
-                            }
-
-                            @Override
-                            public void deliveryComplete(IMqttDeliveryToken token) {
-
-                            }
-                        });
-                    } catch (MqttException ex) {
-
+                        mqttAndroidClient.subscribe("item/" + "cart" + MainActivity.cartNum + "/", 2);
+                    } catch (MqttException e) {
+                        e.printStackTrace();
                     }
                 }
 
@@ -78,9 +59,27 @@ public class UnAssignCartView extends AppCompatActivity {
 
                 }
             });
+
+
         } catch (MqttException ex) {
             System.out.println(ex.toString());
         }
 
+        mqttAndroidClient.setCallback(new MqttCallback() {
+            @Override
+            public void connectionLost(Throwable cause) {
+
+            }
+
+            @Override
+            public void messageArrived(String topic, MqttMessage message) throws Exception {
+                JSONObject json = new JSONObject(new String(message.getPayload()));
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken token) {
+
+            }
+        });
     }
 }

@@ -9,7 +9,7 @@
   <Cart cartNum="7" name="cart7" isAssigned="False" AssignedToDevice=""/>
   <Cart cartNum="8" name="cart8" isAssigned="False" AssignedToDevice=""/>
   <Cart cartNum="9" name="cart9" isAssigned="False" AssignedToDevice=""/>
-  <Cart cartNum="10" name="cart10" isAssigned="False" AssignedToDevice=""/>
+  <Cart cartNum="10" name="cart10" isAssigned="True" AssignedToDevice="a585b075-e085-4c1d-86b4-53bb50f4bb72"/>
   <Cart cartNum="11" name="cart11" isAssigned="False" AssignedToDevice=""/>
   <Cart cartNum="12" name="cart12" isAssigned="False" AssignedToDevice=""/>
   <Cart cartNum="13" name="cart13" isAssigned="False" AssignedToDevice=""/>
