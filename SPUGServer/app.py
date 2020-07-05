@@ -127,6 +127,26 @@ if __name__ == '__main__':
             pathRoot.find(pathQuery).set("isPathOccupied", "False")
             XMLParser.getInstance().writeAndPretify(pathRoot, "Paths.xml")
 
+        if message.topic == 'buyItemFromDevice/':
+            messageJson = str(message.payload.decode())
+            messageJson = json.loads(messageJson)
+
+            itemName = messageJson["itemName"]
+            deviceId = messageJson["deviceId"]
+
+            itemQuery = ".//Item[@name='" + itemName + "']"
+            itemRoot = ElementTree.parse("Items.xml").getroot()
+            itemX = itemRoot.find(itemQuery).get("itemX")
+            itemY = itemRoot.find(itemQuery).get("itemY")
+
+            cartQuery = ".//Cart[@AssignedToDevice='" + deviceId + "']"
+            cartRoot = ElementTree.parse("Carts.xml").getroot()
+            cartName = cartRoot.find(cartQuery).get('cartNum')
+
+            message = {"itemX": itemX, "itemY": itemY}
+            jmsg = json.dumps(message)
+            mqtt_publisher.publish('buyItemFromServer/' + cartName + '/', jmsg, 2)
+
 
     def startLoopingSubscriber():
         mqtt_subscriber.loop_forever()
@@ -141,6 +161,7 @@ if __name__ == '__main__':
     mqtt_subscriber.subscribe('item/', 2)
     mqtt_subscriber.subscribe('pathOccupy/', 2)
     mqtt_subscriber.subscribe('pathUnoccupy/', 2)
+    mqtt_subscriber.subscribe('buyItemFromDevice/', 2)
 
     threadSubscriber = threading.Thread(target=startLoopingSubscriber)
     threadSubscriber.start()
