@@ -2,7 +2,6 @@ package com.example.spug;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,14 +9,13 @@ import android.widget.TextView;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.*;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 public class UnAssignCartView extends AppCompatActivity {
 
-    String hostUrl = "http://192.168.0.103:5000/";
+    String hostUrl = MainActivity.hostUrl;
     AppCompatActivity appCompatActivity = this;
 
     @Override
@@ -48,7 +46,7 @@ public class UnAssignCartView extends AppCompatActivity {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     try {
-                        mqttAndroidClient.subscribe("item/" + "cart" + MainActivity.cartNum + "/", 2);
+                        mqttAndroidClient.subscribe("deviceUpdate/" + MainActivity.uniqueID + '/', 2);
                     } catch (MqttException e) {
                         e.printStackTrace();
                     }
@@ -74,6 +72,7 @@ public class UnAssignCartView extends AppCompatActivity {
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 JSONObject json = new JSONObject(new String(message.getPayload()));
+                listOfItems.append(json.getString("itemPurchased") + " = " + json.getString("cost") + ";");
             }
 
             @Override

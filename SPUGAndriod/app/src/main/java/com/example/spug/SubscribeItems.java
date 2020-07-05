@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 public class SubscribeItems extends AppCompatActivity {
 
-    String hostUrl = "http://192.168.0.103:5000/";
+    String hostUrl = MainActivity.hostUrl;
     static TextView itemsView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

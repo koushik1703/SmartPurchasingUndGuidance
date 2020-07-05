@@ -77,17 +77,25 @@ if __name__ == '__main__':
     pathRoot = ElementTree.parse("Paths.xml").getroot()
 
     def on_message(client, userdata, message):
-        print(message.topic)
-        if "item/" in message.topic:
-            print("Arrived item")
+        if message.topic == 'item/':
             messageJson = json.loads(message.payload.decode())
             itemPurchasedX = messageJson["itemPurchasedX"]
             itemPurchasedY = messageJson["itemPurchasedY"]
+            cartName = messageJson["cartName"]
 
             itemRoot = ElementTree.parse("Items.xml").getroot()
             itemQuery = ".//Item[@itemX='" + itemPurchasedX + "'][@itemY='" + itemPurchasedY + "']"
             currCount = int(itemRoot.find(itemQuery).get('count')) - 1
+            costOfItem = itemRoot.find(itemQuery).get('cost')
             itemRoot.find(itemQuery).set('count', str(currCount))
+
+            cartRoot = ElementTree.parse("Carts.xml").getroot()
+            cartQuery = ".//Cart[@name='" + cartName + "']"
+            deviceIdOfCart = cartRoot.find(cartQuery).get('AssignedToDevice')
+
+            message = {"itemPurchased": itemRoot.find(itemQuery).get('name'), "cost": costOfItem}
+            jmsg = json.dumps(message)
+            mqtt_publisher.publish('deviceUpdate/' + deviceIdOfCart + '/', jmsg, 2)
 
             XMLParser.getInstance().writeAndPretify(itemRoot, "Items.xml")
 
@@ -124,13 +132,13 @@ if __name__ == '__main__':
         mqtt_subscriber.loop_forever()
 
     def startLoopingPublisher():
-        mqtt_publisher.loop_forever()
+        mqtt_publisher.loop_start()
 
 
     mqtt_subscriber = mqtt.Client('item tracking receiver')
     mqtt_subscriber.on_message = on_message
     mqtt_subscriber.connect('192.168.0.103', 1883, 70)
-    mqtt_subscriber.subscribe('item/+/', 2)
+    mqtt_subscriber.subscribe('item/', 2)
     mqtt_subscriber.subscribe('pathOccupy/', 2)
     mqtt_subscriber.subscribe('pathUnoccupy/', 2)
 
@@ -139,6 +147,8 @@ if __name__ == '__main__':
 
     mqtt_publisher = mqtt.Client('Device update publisher')
     mqtt_publisher.connect('192.168.0.103', 1883, 70)
+
     threadPublisher = threading.Thread(target=startLoopingPublisher)
+    threadPublisher.start()
 
     app.run(host='0.0.0.0')

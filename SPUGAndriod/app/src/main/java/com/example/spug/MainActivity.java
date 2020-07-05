@@ -13,7 +13,7 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     String resultText = null;
-    String hostUrl = "http://192.168.0.103:5000/";
+    static String hostUrl = "http://192.168.0.103:5000/";
     static int cartNum;
     AppCompatActivity appCompatActivity = this;
     static TextView responseText;
