@@ -11,7 +11,7 @@ class PublisherSimulation:
 
     def execute(self):
         self.mqttPublisher = mqtt.Client('item tracking')
-        self.mqttPublisher.connect('192.168.0.103', 1883, 70)
+        self.mqttPublisher.connect('192.168.137.1', 1883, 70)
         self.thread = threading.Thread(target=self.startLooping)
         self.thread.start()
 
