@@ -34,6 +34,7 @@ public class AddItems extends AppCompatActivity {
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                itemList.add("over");
                 Intent intent = new Intent(getApplicationContext(), SubscribeItems.class);
                 startActivity(intent);
             }
