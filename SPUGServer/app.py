@@ -31,9 +31,9 @@ if __name__ == '__main__':
     carts = Cart()
     paths = Path()
 
-    itemRoot = ElementTree.parse("Items.xml").getroot()
-    cartRoot = ElementTree.parse("Carts.xml").getroot()
-    pathRoot = ElementTree.parse("Paths.xml").getroot()
+    itemRoot = ElementTree.parse("Data/Items.xml").getroot()
+    cartRoot = ElementTree.parse("Data/Carts.xml").getroot()
+    pathRoot = ElementTree.parse("Data/Paths.xml").getroot()
 
     mqtt = MQTT()
 

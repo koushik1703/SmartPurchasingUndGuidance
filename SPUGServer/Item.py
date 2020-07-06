@@ -19,4 +19,4 @@ class Item:
                 itemElement.set("cost", str(100))
                 index = index + 1;
 
-        XMLParser.getInstance().writeAndPretify(itemRoot, "Items.xml")
+        XMLParser.getInstance().writeAndPretify(itemRoot, "Data/Items.xml")

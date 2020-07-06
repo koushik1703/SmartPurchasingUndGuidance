@@ -4,7 +4,7 @@ from QueryConstructor import QueryConstructor
 
 class IsPathOccupied(Resource):
     def get(self, fromX, fromY, toX, toY):
-        pathRoot = ElementTree.parse("Paths.xml").getroot()
+        pathRoot = ElementTree.parse("Data/Paths.xml").getroot()
         pathQuery = QueryConstructor.getInstance().constructWithFourParameter("Path", "fromX", fromX, "fromY", fromY, "toX", toX, "toY", toY)
         if pathRoot.find(pathQuery).get("isPathOccupied") == "False":
             return 200

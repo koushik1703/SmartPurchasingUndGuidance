@@ -11,14 +11,14 @@ class MQTT:
     def __init__(self):
         MQTT.mqtt_subscriber = mqtt.Client('item tracking receiver')
         MQTT.mqtt_subscriber.on_message = MQTT.on_message
-        MQTT.mqtt_subscriber.connect('192.168.137.1', 1883, 70)
+        MQTT.mqtt_subscriber.connect('192.168.1.9', 1883, 70)
         MQTT.mqtt_subscriber.subscribe('item/', 2)
         MQTT.mqtt_subscriber.subscribe('pathOccupy/', 2)
         MQTT.mqtt_subscriber.subscribe('pathUnoccupy/', 2)
         MQTT.mqtt_subscriber.subscribe('buyItemFromDevice/', 2)
 
         MQTT.mqtt_publisher = mqtt.Client('Device update publisher')
-        MQTT.mqtt_publisher.connect('192.168.137.1', 1883, 70)
+        MQTT.mqtt_publisher.connect('192.168.1.9', 1883, 70)
 
         threadSubscriber = threading.Thread(target=self.startLoopingSubscriber)
         threadSubscriber.start()
@@ -28,9 +28,9 @@ class MQTT:
 
     def on_message(client, userdata, message):
         messageJson = json.loads(message.payload.decode())
-        itemRoot = ElementTree.parse("Items.xml").getroot()
-        cartRoot = ElementTree.parse("Carts.xml").getroot()
-        pathRoot = ElementTree.parse("Paths.xml").getroot()
+        itemRoot = ElementTree.parse("Data/Items.xml").getroot()
+        cartRoot = ElementTree.parse("Data/Carts.xml").getroot()
+        pathRoot = ElementTree.parse("Data/Paths.xml").getroot()
         if message.topic == 'item/':
             itemPurchasedX = messageJson["itemPurchasedX"]
             itemPurchasedY = messageJson["itemPurchasedY"]

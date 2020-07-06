@@ -37,4 +37,4 @@ class Path:
                     pathElement.set("toY", str(y))
                     pathElement.set("isPathOccupied", str(False))
 
-        XMLParser.getInstance().writeAndPretify(pathRoot, "Paths.xml")
+        XMLParser.getInstance().writeAndPretify(pathRoot, "Data/Paths.xml")

@@ -4,7 +4,7 @@ from XMLParsar import XMLParser
 
 class CartUnAssign(Resource):
     def get(self, cartNum):
-        cartRoot = ElementTree.parse("Carts.xml").getroot()
+        cartRoot = ElementTree.parse("Data/Carts.xml").getroot()
         cartQuery = ".//Cart[@cartNum='" + str(cartNum) + "']"
         cartRoot.find(cartQuery).set('isAssigned', 'False')
         cartRoot.find(cartQuery).set('AssignedToDevice', '')
