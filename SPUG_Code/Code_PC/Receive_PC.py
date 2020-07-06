@@ -11,7 +11,7 @@ FBConn = firebase.FirebaseApplication('https://spug-ca0fe.firebaseio.com/', None
 
 class Receiver_PC:
 
-    def run(self):
+    def ReceiveSensorData(self):
     
         self.Server_PC1=Server_PC1() 
 
@@ -73,6 +73,6 @@ if __name__=='__main__':
 
     print ('Program is running on PC ... ')
 
-    receiver_PC.run()
+    receiver_PC.ReceiveSensorData()
     
     sys.exit(0)

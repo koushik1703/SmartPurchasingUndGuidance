@@ -229,8 +229,6 @@ class Server_PC1:
     
         self.Move = 0
         
-        self.Node_Passed = 0
-
         credentials = pika.PlainCredentials('newuser1', 'password')
 
         connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.1.12', 5672, '/', credentials))

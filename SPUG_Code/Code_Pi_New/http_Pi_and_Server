@@ -1,0 +1,7 @@
+http Request from Raspberry Pi to Server:
+
+	To know where a path is occupied:
+	
+		Request Url :	http://#server_ip:5000/#current_x/#current_y/#distination_x/#distination_y
+		Response	:	1) if not occupied : 	response code 200
+						2) if occupied	   :	response code 404
