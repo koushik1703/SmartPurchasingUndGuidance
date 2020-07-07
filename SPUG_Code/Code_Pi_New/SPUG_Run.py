@@ -1,14 +1,18 @@
-
 import time
 from Motor import *
 from Ultrasonic import *
 import RPi.GPIO as GPIO
 from servo import *
 from PCA9685 import PCA9685
+import json
+import paho.mqtt.client as mqtt #import the client1
+
+#Google FIrebase Requirements
+from firebase import firebase
+import datetime
 
 #MQTT Communication Requirements
 import time
-import pika
 import numpy as np
 
 #-----------------------IR Sesor Initilaization---------------------------------
@@ -20,6 +24,9 @@ GPIO.setup(IR01,GPIO.IN)
 GPIO.setup(IR02,GPIO.IN)
 GPIO.setup(IR03,GPIO.IN)
 
+# Create the connection to our Firebase database - don't forget to change the URL!
+FBConn = firebase.FirebaseApplication('https://spug-ca0fe.firebaseio.com/', None)
+
 #----------------Main Class---------------------------------------
 
 class SPUG:
@@ -29,17 +36,21 @@ class SPUG:
         self.x_init = 0
         self.y_init = 0
     
-        #Destination Position
-        self.x_des = 3
-        self.y_des = 3
+        #Intermediate Destination Position
+        self.x_pro_des = 0
+        self.y_pro_des = 0
+        
+        #Intermediate Destination Position
+        self.x_inter_des = 3
+        self.y_inter_des = 3
 
-        #Intemediate Position
+        #Local Position
         self.l_x = 0
         self.l_y = 0
     
         self.Orientation = "North"
         
-        self.Cart_Number = "Cart_12"
+        self.Cart_Number = 12
     
         self.Moved_Straight_New = 0
         self.Moved_Straight_Old = 0
@@ -51,23 +62,33 @@ class SPUG:
         self.Moved_Right_Old = 0
     
         self.Total_Moves = 0
-        self.Target_Reached = 0
+        self.Inter_Target_Reached = 0
+        self.Product_Des_Reached = 0
         
         self.Junction = 0
         
         self.IntialJunction = 0
 
-    def Set_destnation_position(self,x_destination,y_destnation):
-        self.x_des = x_destination
-        self.y_des = y_destnation
+    def Set_intermediate_destnation_position(self,x_destination,y_destnation):
+        self.x_inter_des = x_destination
+        self.y_inter_des = y_destnation
         
-        self.Target_Reached = 0
+        self.Inter_Target_Reached = 0
+        
+    def Set_product_destnation_position(self,x_destination,y_destnation):
+        self.x_pro_des = x_destination
+        self.y_pro_des = y_destnation
+        
+        self.Product_Des_Reached = 0
         
     def Get_curent_position(self):
         return self.l_x, self.l_y
         
-    def Is_DestinTion_Reached(self):
-        return self.Target_Reached
+    def Is_Intermediate_DestinTion_Reached(self):
+        return self.Inter_Target_Reached
+
+    def Is_Product_DestinTion_Reached(self):
+        return self.Product_Des_Reached
     
     def Mov_According_To_Specified_position(self): 
 
@@ -156,19 +177,19 @@ class SPUG:
           
         if(self.Orientation == "North"):
         
-            if((self.y_des - self.l_y) > 0):
+            if((self.y_inter_des - self.l_y) > 0):
                 self.Moved_Straight_New = self.Moved_Straight_Old + 1
                 ret = 5 #Straight
                 
-            elif((self.x_des - self.l_x) > 0):
+            elif((self.x_inter_des - self.l_x) > 0):
                 self.Moved_Right_New = self.Moved_Right_Old + 1
                 ret = 9 #Right
                 
-            elif((self.x_des - self.l_x) < 0):
+            elif((self.x_inter_des - self.l_x) < 0):
                 self.Moved_Left_New = self.Moved_Left_Old + 1
                 ret = 1 #Left
                 
-            elif((self.y_des - self.l_y) < 0):
+            elif((self.y_inter_des - self.l_y) < 0):
                 if(self.l_x > 0):
                     self.Moved_Left_New = self.Moved_Left_Old + 1
                     ret = 1 #Left
@@ -176,25 +197,25 @@ class SPUG:
                     self.Moved_Right_New = Moved_Righ_Old + 1
                     ret = 9 #Right
                     
-            elif((self.y_des == self.l_y) and (self.x_des == self.l_x)):
+            elif((self.y_inter_des == self.l_y) and (self.x_inter_des == self.l_x)):
                 ret = 0 #Stop
                     
                     
         elif(self.Orientation == "South"):
         
-            if((self.y_des - self.l_y) < 0):
+            if((self.y_inter_des - self.l_y) < 0):
                 self.Moved_Straight_New = self.Moved_Straight_Old + 1
                 ret = 5 #Straight
                 
-            elif((self.x_des - self.l_x) < 0):
+            elif((self.x_inter_des - self.l_x) < 0):
                 self.Moved_Right_New = self.Moved_Right_Old + 1
                 ret = 9 #Right
                 
-            elif((self.x_des - self.l_x) > 0):
+            elif((self.x_inter_des - self.l_x) > 0):
                 self.Moved_Left_New = self.Moved_Left_Old + 1
                 ret = 1 #Left
                 
-            elif((self.y_des - self.l_y) > 0):
+            elif((self.y_inter_des - self.l_y) > 0):
                 if(self.l_x > 0):
                     self.Moved_Right_New = self.Moved_Right_Old + 1
                     ret = 9 #Left
@@ -202,25 +223,25 @@ class SPUG:
                     self.Moved_Left_New = self.Moved_Left_Old + 1
                     ret = 9 #Right 
                     
-            elif((self.y_des == self.l_y) and (self.x_des == self.l_x)):
+            elif((self.y_inter_des == self.l_y) and (self.x_inter_des == self.l_x)):
                 ret = 0 #Stop
                 
                     
         elif(self.Orientation == "East"):
         
-            if((self.x_des - self.l_x) > 0):
+            if((self.x_inter_des - self.l_x) > 0):
                 self.Moved_Straight_New = self.Moved_Straight_Old + 1
                 ret = 5 #Straight
                 
-            elif((self.y_des - self.l_y) < 0):
+            elif((self.y_inter_des - self.l_y) < 0):
                 self.Moved_Right_New = self.Moved_Right_Old + 1
                 ret = 9 #Right
                 
-            elif((self.y_des - self.l_y) > 0):
+            elif((self.y_inter_des - self.l_y) > 0):
                 self.Moved_Left_New = self.Moved_Left_Old + 1
                 ret = 1 #Left
                 
-            elif((self.x_des - self.l_x) < 0):
+            elif((self.x_inter_des - self.l_x) < 0):
                 if(self.l_y > 0):
                     self.Moved_Left_New = self.Moved_Left_Old + 1
                     ret = 1 #Left
@@ -228,25 +249,25 @@ class SPUG:
                     self.Moved_Right_New = Moved_Righ_Old + 1
                     ret = 9 #Right 
                     
-            elif((self.y_des == self.l_y) and (self.x_des == self.l_x)):
+            elif((self.y_inter_des == self.l_y) and (self.x_inter_des == self.l_x)):
                 ret = 0 #Stop
                 
                     
         elif(self.Orientation == "West"):
         
-            if((self.x_des - self.l_x) < 0):
+            if((self.x_inter_des - self.l_x) < 0):
                 self.Moved_Straight_New = self.Moved_Straight_Old + 1
                 ret = 5 #Straight
                 
-            elif((self.y_des - self.l_y) > 0):
+            elif((self.y_inter_des - self.l_y) > 0):
                 self.Moved_Right_New = self.Moved_Right_Old + 1
                 ret = 9 #Right
                 
-            elif((self.y_des - self.l_y) < 0):
+            elif((self.y_inter_des - self.l_y) < 0):
                 self.Moved_Left_New = self.Moved_Left_Old + 1
                 ret = 1 #Left
                 
-            elif((self.x_des - self.l_x) > 0):
+            elif((self.x_inter_des - self.l_x) > 0):
                 if(self.l_y > 0):
                     self.Moved_Right_New = self.Moved_Right_Old + 1
                     ret = 1 #Left
@@ -254,48 +275,88 @@ class SPUG:
                     self.Moved_Left_New = self.Moved_Left_Old + 1
                     ret = 9 #Right 
             
-            elif((self.y_des == self.l_y) and (self.x_des == self.l_x)):
+            elif((self.y_inter_des == self.l_y) and (self.x_inter_des == self.l_x)):
                 ret = 0 #Stop
                 
         #Set the inital junction value to 1        
         self.IntialJunction = 1
             
         #Update if the target is reached         
-        if((self.y_des == self.l_y) and (self.x_des == self.l_x)):
-            self.Target_Reached = 1
+        if((self.y_inter_des == self.l_y) and (self.x_inter_des == self.l_x)):
+            self.Inter_Target_Reached = 1
         else:
-            self.Target_Reached = 0
+            self.Inter_Target_Reached = 0
+            
+        #Update if the product coordinate is reached         
+        if((self.y_pro_des == self.l_y) and (self.x_pro_des == self.l_x)):
+            self.Product_Des_Reached = 1
+        else:
+            self.Product_Des_Reached = 0
         
         print("Orientation - %s"%self.Orientation)
         print("X Coordinate - %d "%self.l_x)
         print("Y Coordinate - %d "%self.l_y)
-        print("Destination Reached - %d "%self.Target_Reached)
+        print("Intermediate Destination Reached - %d "%self.Inter_Target_Reached)
+        print("Product Destination Reached - %d "%self.Product_Des_Reached)
         print("Total Moves - %d "%self.Total_Moves)
         
-        #----------------------------------------Send MQTT Message----------------------------------------------------------------------
-        credentials = pika.PlainCredentials('newuser1', 'password')
-
-        connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.1.12', 5672 ,'/', credentials))
-
-        channel = connection.channel()
+        #----------------------------------------------Write data into Google Firebase Cloud DIrectoy
+        # Create a dictionary to store the data before sending to the database
+        data_to_upload = {
+           'Time' : time.ctime(),
+           'Current X Coordinate'     : self.l_x,
+           'Current Y Coordinate'     : self.l_y,
+           'Intermed Destination X'   : self.x_inter_des, 
+           'Intermed Destination Y'   : self.y_inter_des, 
+           'Product Destination X'    : self.x_pro_des, 
+           'Product Destination Y'    : self.y_pro_des, 
+           'Movement'                 : ret,   
+           'Orientation'              : self.Orientation,
+           'Intermed Destination Reached': self.Inter_Target_Reached,
+           'Product Destination Reached': self.Product_Des_Reached,
+           'Total Moves'              : self.Total_Moves 
+            }
+        #Post the data to the appropriate folder/branch within your database
+        result = FBConn.post('/Cart12/SPUG_PI2PC_Coordinates_Data/',data_to_upload)
         
-        channel.exchange_declare(exchange='pathOccupy.topic',exchange_type='topic', durable=True, auto_delete=False)
-
-        channel.queue_declare(queue='pathOccupy.Coordinates.Cart12')
-
-        channel.queue_bind(queue='pathOccupy.Coordinates.Cart12', exchange='pathOccupy.topic', routing_key='Current_Coordinates.Cart12')
+        #----------------------------------------Send MQTT Path Occupy Message-------------------------------------------------
+        client = mqtt.Client("RaspBerry_PI_1") #create new instance
+        
+        client.connect('192.168.1.9', 1883, 70) #connect to broker
+        
+        client.loop_start()
             
-        msg1 = time.ctime() \
-                  + "fromx"+ "%" + str(self.l_x) + "%" \
-                  + "fromy"+ "%" + str(self.l_y) + "%" \
-                  + "tox"  + "%" + str(self.x_des) + "%" \
-                  + "toy"  + "%" + str(self.y_des) + "%"  
-    
-        channel.basic_publish(exchange = 'pathOccupy.topic', routing_key = 'Path_Occupy_Coordinates.Cart12', body = msg1)
+        message = { "fromx" : str(self.l_x), "fromy" : str(self.l_y), \
+                     "tox" : str(self.x_inter_des), "toy" : str(str(self.y_inter_des))}    
             
+        msg1 = json.dumps(message)
+        
+        client.publish("pathOccupy/",msg1, 2)
+        
+        time.sleep(0.1)
             
-        print("Occupy message Sent from Pi :" +msg1)
-        #---------------------------------------------------------------------------------------------------------------------                    
+        print("Paht Occupy message Sent from Pi :" +time.ctime() +" " +msg1)
+        #---------------------------------------------------------------------------------------------------------------------
+        
+        if(self.Is_Product_DestinTion_Reached()):
+            #----------------------------------------Send MQTT Item Purchased Message-------------------------------------------------
+            client = mqtt.Client("RaspBerry_PI_3") #create new instance
+        
+            client.connect('192.168.1.9', 1883, 70) #connect to broker
+        
+            client.loop_start()
+            
+            message3 = { "itemPurchasedX" : str(self.l_x), "itemPurchasedY" : str(self.l_y), \
+                         "cartName" : str(self.Cart_Number)}    
+            
+            msg3 = json.dumps(message3)
+        
+            client.publish("item/",msg3, 2)
+        
+            time.sleep(0.1)
+            
+            print("Item Purchased message Sent from Pi :" +time.ctime() +" " +msg3)
+            #---------------------------------------------------------------------------------------------------------------------         
         
         #Return Value from the Calculations        
         return int(ret)
@@ -375,29 +436,24 @@ class SPUG:
             self.Move_Cart(self.Movement_Type)
             
             
-            if(self.Is_DestinTion_Reached()):
-                #--------------------------------------MQTT Communication Parameters--------------------------------------
-                credentials = pika.PlainCredentials('newuser1', 'password')
-
-                connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.1.12', 5672 ,'/', credentials))
-
-                channel = connection.channel()
-                
-                channel.exchange_declare(exchange='pathUnoccupy.topic',exchange_type='topic', durable=True, auto_delete=False)
-
-                channel.queue_declare(queue='pathUnoccupy.Coordinates.Cart12')
-
-                channel.queue_bind(queue='pathUnoccupy.Coordinates.Cart12', exchange='pathUnoccupy.topic', routing_key='Current_Coordinates.Cart12')
+            if(self.Is_Intermediate_DestinTion_Reached()):
+                #--------------------------------------MQTT Communication Parameters--------------------------------------              
+                client = mqtt.Client("RaspBerry_PI_2") #create new instance
+        
+                client.connect('192.168.1.9', 1883, 70) #connect to broker
+        
+                client.loop_start()
             
-                msg2 = time.ctime() \
-                          + "fromx"+ "%" + str(self.x_init) + "%" \
-                          + "fromy"+ "%" + str(self.y_init) + "%" \
-                          + "tox"  + "%" + str(self.x_des) + "%" \
-                          + "toy"  + "%" + str(self.y_des) + "%"  
-    
-                channel.basic_publish(exchange = 'pathUnoccupy.topic', routing_key = 'Path_Occupy_Coordinates.Cart12', body = msg2)
+                message2 = { "fromx" : str(self.x_init), "fromy" : str(self.y_init), \
+                          "tox" : str(self.x_inter_des), "toy" : str(str(self.y_inter_des))}   
             
-                print("Un Occupy Message Sent from Pi :" +msg2)
+                msg2 = json.dumps(message2)
+        
+                client.publish("pathUnoccupy/",msg2, 2)
+        
+                time.sleep(0.1)
+            
+                print("Paht Un-Occupy message Sent from Pi :" +time.ctime() +" " +msg2)
                 #--------------------------------------------------------------------------------------------------------------------- 
                 break
             

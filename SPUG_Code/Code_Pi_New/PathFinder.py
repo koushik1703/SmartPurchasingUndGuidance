@@ -1,7 +1,17 @@
 from itertools import permutations
+import json
+import paho.mqtt.client as mqtt
+import requests
+
+
+#from SPUG_Run import *
+from PDDL_Generator import *
+
 from SPUG_Run import *
 
+
 class Shortest_Path:
+
     def Distance(self, point1, point2):
         return (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))
         #return ((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2) ** 0.5
@@ -35,10 +45,55 @@ class Shortest_Path:
     def Main(self):
         
         self.SPUG_Run=SPUG()
-
-        points = [[0, 0], [1, 4], [0, 2], [3, 1], [3,3]] #Get the points from the Server
         
-        blocking_points = [] #[[0, 1], [1, 1], [3, 4] ] #Grt the points from the server
+        Points_New = [[0, 0] ]
+        
+        #---------------------Receive Coordinates as MQTT Message from Server-----------------------------
+        def on_message(client, userdata, message):
+            messageJson = json.loads(message.payload.decode())
+            x_coor = messageJson["itemX"]
+            y_coor = messageJson["itemY"]
+            x_coor = int(x_coor)
+            y_coor = int(y_coor)
+            
+            if((x_coor == -1) and (y_coor == -1)):
+                print("Received Coordiantes %s"%Points_New)
+            
+                client.loop_stop()
+            
+                client.disconnect()
+                
+            else:
+                Rec_Point = [x_coor, y_coor]
+            
+                Points_New.append(Rec_Point)
+        
+        client = mqtt.Client("P2") #create new instance
+        
+        client.on_message=on_message #attach function to callback
+
+        client.connect('192.168.1.9', 1883, 70) #connect to broker
+
+        client.subscribe("buyItemFromServer/12", 2)
+        
+        print("Receiving the coordinates from server")
+        
+        client.loop_forever() #stop the loop
+        
+        #-----------------------------------------------------------------------------------------------------
+
+        points =  Points_New  #Points Received from Server
+        
+        blocking_points = [] #[[0, 1], [1, 1], [3, 4] ] #Get the points from the server
+        
+        Str = "https://xkcd.com/1906/"
+        
+        x = requests.get(Str)
+
+        Resp = int(x.status_code)
+        
+        if(Resp == 200):
+            print(x)
         
         print("""The minimum distance to visit all the following points: {}\n \
                   starting at {}""".format(tuple(points),points[0]))
@@ -46,6 +101,7 @@ class Shortest_Path:
         print("""With travelling salesman algorithm is {}""".format(
             self.Total_distance(self.Travelling_salesman(points))))
         
+        print("Shortest path is : ")
         print(self.tsp_path)
         
         self.SPUG_Run.Initialize_Values()
@@ -59,68 +115,77 @@ class Shortest_Path:
             else:
                 P2_Des = [0, 0]
             
+
+			self.PDDL_Generator.write_pddl_problem(4, 1, P1_Init, P2_Des)
+			self.PDDL_Generator.PDDL_solve()
+			
+            #self.SPUG_Run.Set_product_destnation_position(P2_Des[0],P2_Des[1])
+
+            self.SPUG_Run.Set_product_destnation_position(P2_Des[0],P2_Des[1])
+
+            
             print("Initial Coordinates - %s and Target Coordinates - %s"%(P1_Init,P2_Des))                         
             print("----- Path Taken")
             
-            while(P1_Init != P2_Des):
-                Y_Pos_BP = X_Pos_BP = Y_Neg_BP = X_Neg_BP = 0
-                
-                for bp in blocking_points:
-                    if (bp[0] == P1_Init[0]) and (bp[1] == P1_Init[1] + 1):
-                        Y_Pos_BP = 1     
-                        
-                    elif (bp[0] == P1_Init[0] + 1) and (bp[1] == P1_Init[1]):
-                        X_Pos_BP = 1  
-                        
-                    elif (bp[0] == P1_Init[0]) and (bp[1] == P1_Init[1] - 1):
-                        Y_Neg_BP = 1 
-                        
-                    elif (bp[0] == P1_Init[0] - 1) and (bp[1] == P1_Init[1]):
-                        X_Neg_BP = 1
-                        
-                if((P2_Des[1] - P1_Init[1]) > 0):
-                    if (not Y_Pos_BP):
-                        P1_Init[1] = P1_Init[1] + 1
-                    elif(not X_Pos_BP):
-                        P1_Init[0] = P1_Init[0] + 1 
-                    
-                elif((P2_Des[0] - P1_Init[0]) > 0):
-                    if(not X_Pos_BP):
-                        P1_Init[0] = P1_Init[0] + 1
-                    elif (not Y_Pos_BP):
-                        P1_Init[1] = P1_Init[1] + 1
-                        
-                elif((P2_Des[1] - P1_Init[1]) < 0):
-                    if (not Y_Neg_BP):
-                        P1_Init[1] = P1_Init[1] - 1
-                    elif(not X_Neg_BP):
-                        P1_Init[0] = P1_Init[0] + 1 
-                        
-                elif((P2_Des[0] - P1_Init[0]) < 0):
-                    if(not X_Neg_BP):
-                        P1_Init[0] = P1_Init[0] - 1
-                    elif (not Y_Neg_BP):
-                        P1_Init[1] = P1_Init[1] - 1
-                        
-                        
-                if(P1_Init[0] == 0 and P1_Init[1] == 0 and X_Pos_BP and Y_Pos_BP):
-                    print("All ways are blocked")
-                    break
-                elif(X_Pos_BP and Y_Pos_BP and X_Neg_BP and Y_Neg_BP):
-                    print("All ways are blocked")
-                    break                      
-                 
-                print("Next Point - %s"%P1_Init)
+            #while(P1_Init != P2_Des):
+            #    Y_Pos_BP = X_Pos_BP = Y_Neg_BP = X_Neg_BP = 0
+            #    
+            #    for bp in blocking_points:
+            #        if (bp[0] == P1_Init[0]) and (bp[1] == P1_Init[1] + 1):
+            #            Y_Pos_BP = 1     
+            #            
+            #        elif (bp[0] == P1_Init[0] + 1) and (bp[1] == P1_Init[1]):
+            #            X_Pos_BP = 1  
+            #            
+            #        elif (bp[0] == P1_Init[0]) and (bp[1] == P1_Init[1] - 1):
+            #            Y_Neg_BP = 1 
+            #            
+            #        elif (bp[0] == P1_Init[0] - 1) and (bp[1] == P1_Init[1]):
+            #            X_Neg_BP = 1
+            #            
+            #    if((P2_Des[1] - P1_Init[1]) > 0):
+            #        if (not Y_Pos_BP):
+            #            P1_Init[1] = P1_Init[1] + 1
+            #        elif(not X_Pos_BP):
+            #            P1_Init[0] = P1_Init[0] + 1 
+            #        
+            #    elif((P2_Des[0] - P1_Init[0]) > 0):
+            #        if(not X_Pos_BP):
+            #            P1_Init[0] = P1_Init[0] + 1
+            #        elif (not Y_Pos_BP):
+            #            P1_Init[1] = P1_Init[1] + 1
+            #            
+            #    elif((P2_Des[1] - P1_Init[1]) < 0):
+            #        if (not Y_Neg_BP):
+            #            P1_Init[1] = P1_Init[1] - 1
+            #        elif(not X_Neg_BP):
+            #            P1_Init[0] = P1_Init[0] + 1 
+            #            
+            #    elif((P2_Des[0] - P1_Init[0]) < 0):
+            #        if(not X_Neg_BP):
+            #            P1_Init[0] = P1_Init[0] - 1
+            #        elif (not Y_Neg_BP):
+            #            P1_Init[1] = P1_Init[1] - 1
+            #            
+            #            
+            #    if(P1_Init[0] == 0 and P1_Init[1] == 0 and X_Pos_BP and Y_Pos_BP):
+            #        print("All ways are blocked")
+            #        break
+            #    elif(X_Pos_BP and Y_Pos_BP and X_Neg_BP and Y_Neg_BP):
+            #        print("All ways are blocked")
+            #        break                      
+            #     
+            #    print("Next Point - %s"%P1_Init)
                 
                 X_Target = P1_Init[0]
             
                 Y_Target = P1_Init[1]
             
-                self.SPUG_Run.Set_destnation_position(X_Target,Y_Target)
+                self.SPUG_Run.Set_intermediate_destnation_position(X_Target,Y_Target)
             
                 self.SPUG_Run.Run_Cart12()
             
-                if (self.SPUG_Run.Is_DestinTion_Reached()):
+                if (self.SPUG_Run.Is_Intermediate_DestinTion_Reached()):
                     continue
                                   
             print("--------------------------")
