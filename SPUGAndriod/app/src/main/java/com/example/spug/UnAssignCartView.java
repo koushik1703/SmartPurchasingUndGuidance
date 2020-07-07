@@ -17,6 +17,7 @@ public class UnAssignCartView extends AppCompatActivity {
 
     String hostUrl = MainActivity.hostUrl;
     AppCompatActivity appCompatActivity = this;
+    static TextView listOfItems = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +25,7 @@ public class UnAssignCartView extends AppCompatActivity {
         setContentView(R.layout.activity_un_assign_cart_view);
 
         Button giveButton = findViewById(R.id.giveButton);
-        final TextView listOfItems = findViewById(R.id.ListOfItem);
+        listOfItems = findViewById(R.id.ListOfItem);
 
         giveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,8 +73,7 @@ public class UnAssignCartView extends AppCompatActivity {
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 JSONObject json = new JSONObject(new String(message.getPayload()));
-                ItemPurchasedList.getInstance().add(new ItemPurchasedDetail(json.getString("itemPurchased"), json.getString("calorie"), json.getString("fat"), json.getString("carbohydrate"), json.getString("protein"), json.getString("salt"), json.getString("time")));
-                listOfItems.append(json.getString("itemPurchased") + " = " + json.getString("cost") + ";");
+                openDialog(json);
             }
 
             @Override
@@ -81,5 +81,10 @@ public class UnAssignCartView extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void openDialog(JSONObject json) {
+        ItemToBuyDialog itemToBuyDialog = new ItemToBuyDialog(json);
+        itemToBuyDialog.show(getSupportFragmentManager(), "Item to buy dialog");
     }
 }
