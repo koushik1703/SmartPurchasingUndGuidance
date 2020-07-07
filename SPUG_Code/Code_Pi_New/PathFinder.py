@@ -4,6 +4,7 @@ import paho.mqtt.client as mqtt
 import requests
 
 #from SPUG_Run import *
+from PDDL_Generator import *
 
 class Shortest_Path:
 
@@ -79,7 +80,7 @@ class Shortest_Path:
 
         points =  Points_New  #Points Received from Server
         
-        blocking_points = [] #[[0, 1], [1, 1], [3, 4] ] #Grt the points from the server
+        blocking_points = [] #[[0, 1], [1, 1], [3, 4] ] #Get the points from the server
         
         Str = "https://xkcd.com/1906/"
         
@@ -110,60 +111,63 @@ class Shortest_Path:
             else:
                 P2_Des = [0, 0]
             
+			self.PDDL_Generator.write_pddl_problem(4, 1, P1_Init, P2_Des)
+			self.PDDL_Generator.PDDL_solve()
+			
             #self.SPUG_Run.Set_product_destnation_position(P2_Des[0],P2_Des[1])
             
             print("Initial Coordinates - %s and Target Coordinates - %s"%(P1_Init,P2_Des))                         
             print("----- Path Taken")
             
-            while(P1_Init != P2_Des):
-                Y_Pos_BP = X_Pos_BP = Y_Neg_BP = X_Neg_BP = 0
-                
-                for bp in blocking_points:
-                    if (bp[0] == P1_Init[0]) and (bp[1] == P1_Init[1] + 1):
-                        Y_Pos_BP = 1     
-                        
-                    elif (bp[0] == P1_Init[0] + 1) and (bp[1] == P1_Init[1]):
-                        X_Pos_BP = 1  
-                        
-                    elif (bp[0] == P1_Init[0]) and (bp[1] == P1_Init[1] - 1):
-                        Y_Neg_BP = 1 
-                        
-                    elif (bp[0] == P1_Init[0] - 1) and (bp[1] == P1_Init[1]):
-                        X_Neg_BP = 1
-                        
-                if((P2_Des[1] - P1_Init[1]) > 0):
-                    if (not Y_Pos_BP):
-                        P1_Init[1] = P1_Init[1] + 1
-                    elif(not X_Pos_BP):
-                        P1_Init[0] = P1_Init[0] + 1 
-                    
-                elif((P2_Des[0] - P1_Init[0]) > 0):
-                    if(not X_Pos_BP):
-                        P1_Init[0] = P1_Init[0] + 1
-                    elif (not Y_Pos_BP):
-                        P1_Init[1] = P1_Init[1] + 1
-                        
-                elif((P2_Des[1] - P1_Init[1]) < 0):
-                    if (not Y_Neg_BP):
-                        P1_Init[1] = P1_Init[1] - 1
-                    elif(not X_Neg_BP):
-                        P1_Init[0] = P1_Init[0] + 1 
-                        
-                elif((P2_Des[0] - P1_Init[0]) < 0):
-                    if(not X_Neg_BP):
-                        P1_Init[0] = P1_Init[0] - 1
-                    elif (not Y_Neg_BP):
-                        P1_Init[1] = P1_Init[1] - 1
-                        
-                        
-                if(P1_Init[0] == 0 and P1_Init[1] == 0 and X_Pos_BP and Y_Pos_BP):
-                    print("All ways are blocked")
-                    break
-                elif(X_Pos_BP and Y_Pos_BP and X_Neg_BP and Y_Neg_BP):
-                    print("All ways are blocked")
-                    break                      
-                 
-                print("Next Point - %s"%P1_Init)
+            #while(P1_Init != P2_Des):
+            #    Y_Pos_BP = X_Pos_BP = Y_Neg_BP = X_Neg_BP = 0
+            #    
+            #    for bp in blocking_points:
+            #        if (bp[0] == P1_Init[0]) and (bp[1] == P1_Init[1] + 1):
+            #            Y_Pos_BP = 1     
+            #            
+            #        elif (bp[0] == P1_Init[0] + 1) and (bp[1] == P1_Init[1]):
+            #            X_Pos_BP = 1  
+            #            
+            #        elif (bp[0] == P1_Init[0]) and (bp[1] == P1_Init[1] - 1):
+            #            Y_Neg_BP = 1 
+            #            
+            #        elif (bp[0] == P1_Init[0] - 1) and (bp[1] == P1_Init[1]):
+            #            X_Neg_BP = 1
+            #            
+            #    if((P2_Des[1] - P1_Init[1]) > 0):
+            #        if (not Y_Pos_BP):
+            #            P1_Init[1] = P1_Init[1] + 1
+            #        elif(not X_Pos_BP):
+            #            P1_Init[0] = P1_Init[0] + 1 
+            #        
+            #    elif((P2_Des[0] - P1_Init[0]) > 0):
+            #        if(not X_Pos_BP):
+            #            P1_Init[0] = P1_Init[0] + 1
+            #        elif (not Y_Pos_BP):
+            #            P1_Init[1] = P1_Init[1] + 1
+            #            
+            #    elif((P2_Des[1] - P1_Init[1]) < 0):
+            #        if (not Y_Neg_BP):
+            #            P1_Init[1] = P1_Init[1] - 1
+            #        elif(not X_Neg_BP):
+            #            P1_Init[0] = P1_Init[0] + 1 
+            #            
+            #    elif((P2_Des[0] - P1_Init[0]) < 0):
+            #        if(not X_Neg_BP):
+            #            P1_Init[0] = P1_Init[0] - 1
+            #        elif (not Y_Neg_BP):
+            #            P1_Init[1] = P1_Init[1] - 1
+            #            
+            #            
+            #    if(P1_Init[0] == 0 and P1_Init[1] == 0 and X_Pos_BP and Y_Pos_BP):
+            #        print("All ways are blocked")
+            #        break
+            #    elif(X_Pos_BP and Y_Pos_BP and X_Neg_BP and Y_Neg_BP):
+            #        print("All ways are blocked")
+            #        break                      
+            #     
+            #    print("Next Point - %s"%P1_Init)
                 
                 X_Target = P1_Init[0]
             
