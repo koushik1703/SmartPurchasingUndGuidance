@@ -3,7 +3,7 @@ import json
 import paho.mqtt.client as mqtt
 import requests
 
-#from SPUG_Run import *
+from SPUG_Run import *
 
 class Shortest_Path:
 
@@ -39,7 +39,7 @@ class Shortest_Path:
 
     def Main(self):
         
-        #self.SPUG_Run=SPUG()
+        self.SPUG_Run=SPUG()
         
         Points_New = [[0, 0] ]
         
@@ -67,7 +67,7 @@ class Shortest_Path:
         
         client.on_message=on_message #attach function to callback
 
-        client.connect('192.168.1.2', 1883, 70) #connect to broker
+        client.connect('192.168.1.9', 1883, 70) #connect to broker
 
         client.subscribe("buyItemFromServer/12", 2)
         
@@ -99,7 +99,7 @@ class Shortest_Path:
         print("Shortest path is : ")
         print(self.tsp_path)
         
-        #self.SPUG_Run.Initialize_Values()
+        self.SPUG_Run.Initialize_Values()
         
         for Index, Coordinates in enumerate(self.tsp_path[:]):
             
@@ -110,7 +110,7 @@ class Shortest_Path:
             else:
                 P2_Des = [0, 0]
             
-            #self.SPUG_Run.Set_product_destnation_position(P2_Des[0],P2_Des[1])
+            self.SPUG_Run.Set_product_destnation_position(P2_Des[0],P2_Des[1])
             
             print("Initial Coordinates - %s and Target Coordinates - %s"%(P1_Init,P2_Des))                         
             print("----- Path Taken")
@@ -169,12 +169,12 @@ class Shortest_Path:
             
                 Y_Target = P1_Init[1]
             
-                #self.SPUG_Run.Set_intermediate_destnation_position(X_Target,Y_Target)
+                self.SPUG_Run.Set_intermediate_destnation_position(X_Target,Y_Target)
             
-                #self.SPUG_Run.Run_Cart12()
+                self.SPUG_Run.Run_Cart12()
             
-                #if (self.SPUG_Run.Is_Intermediate_DestinTion_Reached()):
-                    #continue
+                if (self.SPUG_Run.Is_Intermediate_DestinTion_Reached()):
+                    continue
                                   
             print("--------------------------")
 

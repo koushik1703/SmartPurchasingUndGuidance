@@ -322,7 +322,7 @@ class SPUG:
         #----------------------------------------Send MQTT Path Occupy Message-------------------------------------------------
         client = mqtt.Client("RaspBerry_PI_1") #create new instance
         
-        client.connect('192.168.1.2', 1883, 70) #connect to broker
+        client.connect('192.168.1.9', 1883, 70) #connect to broker
         
         client.loop_start()
             
@@ -342,7 +342,7 @@ class SPUG:
             #----------------------------------------Send MQTT Item Purchased Message-------------------------------------------------
             client = mqtt.Client("RaspBerry_PI_3") #create new instance
         
-            client.connect('192.168.1.2', 1883, 70) #connect to broker
+            client.connect('192.168.1.9', 1883, 70) #connect to broker
         
             client.loop_start()
             
@@ -440,7 +440,7 @@ class SPUG:
                 #--------------------------------------MQTT Communication Parameters--------------------------------------              
                 client = mqtt.Client("RaspBerry_PI_2") #create new instance
         
-                client.connect('192.168.1.2', 1883, 70) #connect to broker
+                client.connect('192.168.1.9', 1883, 70) #connect to broker
         
                 client.loop_start()
             

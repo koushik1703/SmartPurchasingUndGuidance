@@ -2,13 +2,27 @@ import time
 import requests
 import sys
 
-
 class PDDL_Generator:
+    def Initialize_Values(self):
+        self.map_size = 4
+        self.number_spug = 1
+        self.start_point_spugs =[(0,0),(0,2)]
+        self.end_point_spug =(3,4)
+        
+    def Set_InitialValues(self, X_Coordinate, Y_Coordinate):
+        Initial_Point = (X_Coordinate, Y_Coordinate)
+        self.start_point_spugs[0] = Initial_Point
+        
+    def Set_TerminalValues(self, X_Coordinate, Y_Coordinate):
+        Terminating_Point = (X_Coordinate, Y_Coordinate)
+        self.end_point_spug = Terminating_Point
+
     def write_pddl_problem(self, map_size, number_spug, start_point_spugs, end_point_spug):
+
         spugs = range (0, number_spug)
         I=0
         I_new=0
-		problem_file = open("Move_SPUG.pddl", "w")
+        problem_file = open("Move_SPUG.pddl", "w")
 	
         #--------------write the definition part------------------#
         problem_file.write("(define (problem MoveSPUG)\n")
@@ -71,26 +85,25 @@ class PDDL_Generator:
         problem_file.write("\n\n\t(:goal (spug-at spug{0} n_{1}_{2})\n\t)\n".format(1, end_point_spug[0], end_point_spug[1]))
 	
         #----------------EOF-----------------------#
-        problem_file.write("\n)")
-		
-		
-		
-		
-	def PDDL_solve():
-	    data = {'domain': open("Domain_SPUG.pddl", 'r').read(), 'problem': open("Move_SPUG.pddl", 'r').read()}
-		response = requests.post('http://solver.planning.domains/solve',json=data).json()
-		with open("Plan_to_follow.txt", 'w') as f:
-		    for act in response ['result']['plan']:
-			    f.write(str(act['name']))
-				f.write('\n')
-				
-				
-	
+        problem_file.write("\n)")	
+
+    def PDDL_solve(self):
+        data = {'domain': open("Domain_SPUG.pddl", 'r').read(), 'problem': open("Move_SPUG.pddl", 'r').read()}
+        response = requests.post('http://solver.planning.domains/solve',json=data).json()
+        with open("Plan_to_follow.txt", 'a') as f:
+            for act in response ['result']['plan']:
+                f.write(str(act['name']))
+                f.write('\n')        
+        
+    def Generate_PDDL_Script(self):
+        self.write_pddl_problem(self.map_size, self.number_spug, self.start_point_spugs, self.end_point_spug)
+        
+        self.PDDL_solve()
+					
 PDDL_Gen = PDDL_Generator()
 if __name__ == "__main__":
 
-    map_size = 3
-    number_spug = 1
-    start_point_spugs =[(0,0),(0,2)]
-    end_point_spug =(3,4)    
-    PDDL_Gen.write_pddl_problem(map_size, number_spug, start_point_spugs, end_point_spug)
+    PDDL_Gen.Initialize_Values()
+    PDDL_Gen.Generate_PDDL_Script()
+    
+    
