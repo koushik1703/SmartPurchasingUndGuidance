@@ -1,6 +1,7 @@
 import time
 import requests
 import sys
+from itertools import combinations
 
 class PDDL_Generator:
     def Initialize_Values(self):
@@ -16,7 +17,87 @@ class PDDL_Generator:
     def Set_TerminalValues(self, X_Coordinate, Y_Coordinate):
         Terminating_Point = (X_Coordinate, Y_Coordinate)
         self.end_point_spug = Terminating_Point
+		
+	def write_pddl_domain (self, number_spug):
+	    number_spug = 3
+		spugs = range (0, number_spug)
+		domain_file = open("domain_SPUG.pddl", "w")		
+        domain_file.write("(define (domain SPUG)\n\n\t(:types spug node - object\n\t)\n\n")
+        domain_file.write("(:predicates \n\t(spug-at ?s - spug ?n - node)\n\t(not_same_spug ?s1 - spug ?s2 - spug)\n\t(is_node_north ?n1  ?n2 - node)\n\t(is_node_east ?n1  ?n2 - node)\n\t(is_node_west ?n1  ?n2 - node)\n\t(is_node_south ?n1  ?n2 - node)\n\t)")
+		# ****************** Move North *************************#
+		domain_file.write("\n\n(:action Move_North_\n\t:parameters (")
+        for i in spugs:
+            domain_file.write("?s{0} ".format(i+1))
+        domain_file.write("- spug ?n1 - node ?n2 - node) \n\t:precondition")
+		domain_file.write(" (and (spug-at ?s1 ?n1) (is_node_north ?n1 ?n2) ")
 
+        for i in spugs:
+            domain_file.write("(not(spug-at ?s{0} ?n2)) ".format(i+1))
+        
+        res_lst = sorted(map(sorted, combinations(set(spugs), 2)))
+        for item in res_lst:
+            domain_file.write("(not_same_spug ?s{0} ?s{1}) ".format(item[0]+1, item[1]+1))
+        domain_file.write(")\n\n")
+        
+        domain_file.write("\t:effect (and (spug-at ?s1 ?n2) (not (spug-at ?s1 ?n1)) )\n\t)")
+		# ****************** Move South *************************#
+        domain_file.write("\n\n(:action Move_South_\n\t:parameters (")
+        for i in spugs:
+            domain_file.write("?s{0} ".format(i+1))
+        domain_file.write("- spug ?n1 - node ?n2 - node) \n\t:precondition")
+        
+        domain_file.write(" (and (spug-at ?s1 ?n1) (is_node_south ?n1 ?n2) ")
+        
+        for i in spugs:
+            domain_file.write("(not(spug-at ?s{0} ?n2)) ".format(i+1))
+        
+        res_lst = sorted(map(sorted, combinations(set(spugs), 2)))
+        for item in res_lst:
+            domain_file.write("(not_same_spug ?s{0} ?s{1}) ".format(item[0]+1, item[1]+1))
+        domain_file.write(")\n\n")
+        
+        domain_file.write("\t:effect (and (spug-at ?s1 ?n2) (not (spug-at ?s1 ?n1)) )\n\t)")
+        
+        #********************** Move East ***************************#
+        domain_file.write("\n\n(:action Move_East_\n\t:parameters (")
+        for i in spugs:
+            domain_file.write("?s{0} ".format(i+1))
+        domain_file.write("- spug ?n1 - node ?n2 - node) \n\t:precondition")
+        
+        domain_file.write(" (and (spug-at ?s1 ?n1) (is_node_east ?n1 ?n2) ")
+        
+        for i in spugs:
+            domain_file.write("(not(spug-at ?s{0} ?n2)) ".format(i+1))
+        
+        res_lst = sorted(map(sorted, combinations(set(spugs), 2)))
+        for item in res_lst:
+            domain_file.write("(not_same_spug ?s{0} ?s{1}) ".format(item[0]+1, item[1]+1))
+        domain_file.write(")\n\n")
+        
+        domain_file.write("\t:effect (and (spug-at ?s1 ?n2) (not (spug-at ?s1 ?n1)) )\n\t)")
+        
+        #********************** Move West ****************************#
+        domain_file.write("\n\n(:action Move_West_\n\t:parameters (")
+        for i in spugs:
+            domain_file.write("?s{0} ".format(i+1))
+        domain_file.write("- spug ?n1 - node ?n2 - node) \n\t:precondition")
+        
+        domain_file.write(" (and (spug-at ?s1 ?n1) (is_node_west ?n1 ?n2) ")
+        
+        for i in spugs:
+            domain_file.write("(not(spug-at ?s{0} ?n2)) ".format(i+1))
+        
+        res_lst = sorted(map(sorted, combinations(set(spugs), 2)))
+        for item in res_lst:
+            domain_file.write("(not_same_spug ?s{0} ?s{1}) ".format(item[0]+1, item[1]+1))
+        domain_file.write(")\n\n")
+        
+        domain_file.write("\t:effect (and (spug-at ?s1 ?n2) (not (spug-at ?s1 ?n1)) )\n\t)")
+        domain_file.write("\n\n)")
+		
+		
+        
+		
     def write_pddl_problem(self, map_size, number_spug, start_point_spugs, end_point_spug):
 
         spugs = range (0, number_spug)
@@ -77,6 +158,11 @@ class PDDL_Generator:
         for i in range(0, number_spug):
             problem_file.write("\t(spug-at spug{0} n_{1}_{2})".format(i+1, start_point_spugs[i][0], start_point_spugs[i][1] ))
             problem_file.write("\n")
+		
+		res_lst = sorted(map(sorted, combinations(set(spugs), 2)))
+        for item in res_lst:
+            problem_file.write("(not_same_spug ?s{0} ?s{1}) ".format(item[0]+1, item[1]+1))
+        problem_file.write("\n")
 	
         problem_file.write("\n\t)")
 	
