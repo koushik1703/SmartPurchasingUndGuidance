@@ -1,19 +1,23 @@
 import time
+import requests
+import sys
+
 
 class PDDL_Generator:
     def write_pddl_problem(self, map_size, number_spug, start_point_spugs, end_point_spug):
-        problem_file = open("Move_SPUG.pddl", "w")
+        spugs = range (0, number_spug)
+        I=0
+        I_new=0
+		problem_file = open("Move_SPUG.pddl", "w")
 	
-        ##### write the definition part #####
+        #--------------write the definition part------------------#
         problem_file.write("(define (problem MoveSPUG)\n")
         problem_file.write("	(:domain SPUG)\n")
         problem_file.write("	(:objects \n")
 	
         nodes = [(x,y) for x in range(map_size+1) for y in range(map_size+1)]
 	
-        spugs = range (0, number_spug)
-        I=0
-        I_new=0
+
         for (i,j) in nodes:
             I_new = i
             if (I != I_new):
@@ -28,7 +32,7 @@ class PDDL_Generator:
         problem_file.write("	- spug")
         problem_file.write("\n  )\n")
 	
-        ########### write the init part ##########
+        #-----------write the init part---------------#
         problem_file.write("	(:init \n")
 	
 	
@@ -63,11 +67,24 @@ class PDDL_Generator:
         problem_file.write("\n\t)")
 	
 	
-        ###########goal##########
+        #----------------goal----------------------#
         problem_file.write("\n\n\t(:goal (spug-at spug{0} n_{1}_{2})\n\t)\n".format(1, end_point_spug[0], end_point_spug[1]))
 	
-        ####EOF####
+        #----------------EOF-----------------------#
         problem_file.write("\n)")
+		
+		
+		
+		
+	def PDDL_solve():
+	    data = {'domain': open("Domain_SPUG.pddl", 'r').read(), 'problem': open("Move_SPUG.pddl", 'r').read()}
+		response = requests.post('http://solver.planning.domains/solve',json=data).json()
+		with open("Plan_to_follow.txt", 'w') as f:
+		    for act in response ['result']['plan']:
+			    f.write(str(act['name']))
+				f.write('\n')
+				
+				
 	
 PDDL_Gen = PDDL_Generator()
 if __name__ == "__main__":
