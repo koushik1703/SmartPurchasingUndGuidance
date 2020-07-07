@@ -8,5 +8,5 @@ class CartUnAssign(Resource):
         cartQuery = ".//Cart[@cartNum='" + str(cartNum) + "']"
         cartRoot.find(cartQuery).set('isAssigned', 'False')
         cartRoot.find(cartQuery).set('AssignedToDevice', '')
-        XMLParser.getInstance().writeAndPretify(cartRoot, "Carts.xml")
+        XMLParser.getInstance().writeAndPretify(cartRoot, "Data/Carts.xml")
         return 200

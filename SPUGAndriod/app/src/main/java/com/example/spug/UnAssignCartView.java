@@ -38,7 +38,7 @@ public class UnAssignCartView extends AppCompatActivity {
         });
 
         String clientId = MqttClient.generateClientId();
-        final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(this.getApplicationContext(), "tcp://192.168.1.9:1883", clientId);
+        final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(this.getApplicationContext(), "tcp://192.168.137.1:1883", clientId);
 
         try {
             IMqttToken token = mqttAndroidClient.connect();
@@ -72,6 +72,7 @@ public class UnAssignCartView extends AppCompatActivity {
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 JSONObject json = new JSONObject(new String(message.getPayload()));
+                ItemPurchasedList.getInstance().add(new ItemPurchasedDetail(json.getString("itemPurchased"), json.getString("calorie"), json.getString("fat"), json.getString("carbohydrate"), json.getString("protein"), json.getString("salt"), json.getString("time")));
                 listOfItems.append(json.getString("itemPurchased") + " = " + json.getString("cost") + ";");
             }
 

@@ -15,8 +15,13 @@ class Item:
                 itemElement.set("name", "item" + str(index))
                 itemElement.set("itemX", str(i))
                 itemElement.set("itemY", str(j))
-                itemElement.set("count", str(500))
-                itemElement.set("cost", str(100))
+                itemElement.set("count", str(randrange(500)))
+                itemElement.set("cost", str(randrange(200)))
+                itemElement.set("calorie", str(randrange(1000)))
+                itemElement.set("fat", str(randrange(100)))
+                itemElement.set("carbohydrate", str(randrange(10)))
+                itemElement.set("protein", str(randrange(5)))
+                itemElement.set("salt", str(randrange(10)))
                 index = index + 1;
 
         XMLParser.getInstance().writeAndPretify(itemRoot, "Data/Items.xml")
