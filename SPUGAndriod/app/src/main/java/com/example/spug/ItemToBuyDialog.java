@@ -44,7 +44,7 @@ public class ItemToBuyDialog extends AppCompatDialogFragment {
                     UnAssignCartView.listOfItems.append(json.getString("itemPurchased") + " = " + json.getString("cost") + ";");
 
                     String clientId = MqttClient.generateClientId();
-                    final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(getContext(), "tcp://192.168.137.1:1883", clientId);
+                    final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(getContext(), MainActivity.mqttUrl, clientId);
 
                     try {
                         IMqttToken token = mqttAndroidClient.connect();
@@ -79,7 +79,7 @@ public class ItemToBuyDialog extends AppCompatDialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String clientId = MqttClient.generateClientId();
-                final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(getContext(), "tcp://192.168.137.1:1883", clientId);
+                final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(getContext(), MainActivity.mqttUrl, clientId);
 
                 try {
                     IMqttToken token = mqttAndroidClient.connect();

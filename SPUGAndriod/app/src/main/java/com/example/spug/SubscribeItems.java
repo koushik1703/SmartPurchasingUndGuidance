@@ -33,7 +33,7 @@ public class SubscribeItems extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), UnAssignCartView.class);
                 String clientId = MqttClient.generateClientId();
-                final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), "tcp://192.168.137.1:1883", clientId);
+                final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), MainActivity.mqttUrl, clientId);
 
                 try {
                     IMqttToken token = mqttAndroidClient.connect();

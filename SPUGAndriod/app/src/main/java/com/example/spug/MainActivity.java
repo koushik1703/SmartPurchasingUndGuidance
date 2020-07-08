@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     String resultText = null;
     static String hostUrl = "http://192.168.137.1:5000/";
+    static String mqttUrl = "tcp://192.168.137.1:1883";
     static int cartNum;
     AppCompatActivity appCompatActivity = this;
     static TextView responseText;
