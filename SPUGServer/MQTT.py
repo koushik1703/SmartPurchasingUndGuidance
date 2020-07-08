@@ -107,8 +107,10 @@ class MQTT:
                 currCount = int(itemRoot.find(itemQuery).get('count')) - 1;
                 itemRoot.find(itemQuery).set('count', str(currCount))
 
+            message = {"null": "null"}
+            jmsg = json.dumps(message)
             cartQuery = QueryConstructor.getInstance().constructWithOneParameter("Cart", "AssignedToDevice", deviceId)
-            MQTT.mqtt_publisher.publish('continue/' + cartRoot.find(cartQuery).get('cartNum') + '/')
+            MQTT.mqtt_publisher.publish('continue/' + cartRoot.find(cartQuery).get('cartNum') + '/', jmsg, 2)
 
             XMLParser.getInstance().writeAndPretify(itemRoot, "Data/Items.xml")
 
