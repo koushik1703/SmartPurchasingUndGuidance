@@ -6,7 +6,7 @@
 	n_2_0	n_2_1	n_2_2	n_2_3	n_2_4
 	n_3_0	n_3_1	n_3_2	n_3_3	n_3_4
 	n_4_0	n_4_1	n_4_2	n_4_3	n_4_4	- node
-	spug1 	- spug
+	spug1 	spug2 	spug3 	spug4 	- spug
   )
 	(:init 
 	(is_node_north n_0_0 n_0_1)	(is_node_north n_0_1 n_0_2)	(is_node_north n_0_2 n_0_3)	(is_node_north n_0_3 n_0_4)
@@ -30,10 +30,14 @@
 	(is_node_west n_1_3 n_0_3)	(is_node_west n_2_3 n_1_3)	(is_node_west n_3_3 n_2_3)	(is_node_west n_4_3 n_3_3)
 
 	(spug-at spug1 n_0_0)
+	(spug-at spug2 n_0_2)
+	(spug-at spug3 n_0_1)
+	(spug-at spug4 n_2_1)
+(not_same_spug spug1 spug2) (not_same_spug spug1 spug3) (not_same_spug spug1 spug4) (not_same_spug spug2 spug3) (not_same_spug spug2 spug4) (not_same_spug spug3 spug4) 
 
 	)
 
-	(:goal (spug-at spug1 n_3_4)
+	(:goal (spug-at spug1 n_2_2)
 	)
 
 )
