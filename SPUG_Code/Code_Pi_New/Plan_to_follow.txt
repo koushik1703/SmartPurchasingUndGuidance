@@ -1,0 +1,4 @@
+(move_north_ spug1 n_0_0 n_0_1)
+(move_east_ spug1 n_0_1 n_1_1)
+(move_north_ spug1 n_1_1 n_1_2)
+(move_east_ spug1 n_1_2 n_2_2)
