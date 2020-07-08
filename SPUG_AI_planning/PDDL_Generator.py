@@ -6,9 +6,9 @@ from itertools import combinations
 class PDDL_Generator:
     def Initialize_Values(self):
         self.map_size = 4
-        self.number_spug = 1
-        self.start_point_spugs =[(0,0),(0,2)]
-        self.end_point_spug =(3,4)
+        self.number_spug = 4
+        self.start_point_spugs =[(0,0),(0,2), (0,1), (2,1)]
+        self.end_point_spug =(2,2)
         
     def Set_InitialValues(self, X_Coordinate, Y_Coordinate):
         Initial_Point = (X_Coordinate, Y_Coordinate)
@@ -18,19 +18,17 @@ class PDDL_Generator:
         Terminating_Point = (X_Coordinate, Y_Coordinate)
         self.end_point_spug = Terminating_Point
 		
-	def write_pddl_domain (self, number_spug):
-	    number_spug = 3
-		spugs = range (0, number_spug)
-		domain_file = open("domain_SPUG.pddl", "w")		
+    def write_pddl_domain (self, number_spug):
+        spugs = range(0, number_spug)
+        domain_file = open("domain_SPUG.pddl", "w")
         domain_file.write("(define (domain SPUG)\n\n\t(:types spug node - object\n\t)\n\n")
         domain_file.write("(:predicates \n\t(spug-at ?s - spug ?n - node)\n\t(not_same_spug ?s1 - spug ?s2 - spug)\n\t(is_node_north ?n1  ?n2 - node)\n\t(is_node_east ?n1  ?n2 - node)\n\t(is_node_west ?n1  ?n2 - node)\n\t(is_node_south ?n1  ?n2 - node)\n\t)")
 		# ****************** Move North *************************#
-		domain_file.write("\n\n(:action Move_North_\n\t:parameters (")
+        domain_file.write("\n\n(:action Move_North_\n\t:parameters (")
         for i in spugs:
             domain_file.write("?s{0} ".format(i+1))
         domain_file.write("- spug ?n1 - node ?n2 - node) \n\t:precondition")
-		domain_file.write(" (and (spug-at ?s1 ?n1) (is_node_north ?n1 ?n2) ")
-
+        domain_file.write(" (and (spug-at ?s1 ?n1) (is_node_north ?n1 ?n2) ")
         for i in spugs:
             domain_file.write("(not(spug-at ?s{0} ?n2)) ".format(i+1))
         
@@ -158,10 +156,9 @@ class PDDL_Generator:
         for i in range(0, number_spug):
             problem_file.write("\t(spug-at spug{0} n_{1}_{2})".format(i+1, start_point_spugs[i][0], start_point_spugs[i][1] ))
             problem_file.write("\n")
-		
-		res_lst = sorted(map(sorted, combinations(set(spugs), 2)))
+        res_lst = sorted(map(sorted, combinations(set(spugs), 2)))
         for item in res_lst:
-            problem_file.write("(not_same_spug ?s{0} ?s{1}) ".format(item[0]+1, item[1]+1))
+            problem_file.write("(not_same_spug spug{0} spug{1}) ".format(item[0]+1, item[1]+1))
         problem_file.write("\n")
 	
         problem_file.write("\n\t)")
@@ -174,7 +171,7 @@ class PDDL_Generator:
         problem_file.write("\n)")	
 
     def PDDL_solve(self):
-        data = {'domain': open("Domain_SPUG.pddl", 'r').read(), 'problem': open("Move_SPUG.pddl", 'r').read()}
+        data = {'domain': open("domain_SPUG.pddl", 'r').read(), 'problem': open("Move_SPUG.pddl", 'r').read()}
         response = requests.post('http://solver.planning.domains/solve',json=data).json()
         with open("Plan_to_follow.txt", 'a') as f:
             for act in response ['result']['plan']:
@@ -183,7 +180,7 @@ class PDDL_Generator:
         
     def Generate_PDDL_Script(self):
         self.write_pddl_problem(self.map_size, self.number_spug, self.start_point_spugs, self.end_point_spug)
-        
+        self.write_pddl_domain(self.number_spug)
         self.PDDL_solve()
 					
 PDDL_Gen = PDDL_Generator()
