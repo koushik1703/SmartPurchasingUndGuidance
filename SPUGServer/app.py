@@ -2,12 +2,11 @@ from flask import Flask
 from flask_restful import Api
 from Cart import Cart
 from Item import Item
-from Path import Path
+from Point import Point
 import xml.etree.ElementTree as ElementTree
 from ItemCount import ItemCount
 from CartAssign import CartAssign
 from CartUnAssign import CartUnAssign
-from PathOccupied import IsPathOccupied
 from MQTT import MQTT
 
 app = Flask(__name__)
@@ -22,18 +21,17 @@ def hello_world():
 api.add_resource(CartAssign, '/getCart/<int:cartNum>/<deviceId>')
 api.add_resource(ItemCount, '/getItemCount/<itemName>')
 api.add_resource(CartUnAssign, '/giveCart/<int:cartNum>')
-api.add_resource(IsPathOccupied, '/isPathOccupied/<int:fromX>/<int:fromY>/<int:toX>/<int:toY>')
 
 
 if __name__ == '__main__':
 
     items = Item()
     carts = Cart()
-    paths = Path()
+    points = Point()
 
     itemRoot = ElementTree.parse("Data/Items.xml").getroot()
     cartRoot = ElementTree.parse("Data/Carts.xml").getroot()
-    pathRoot = ElementTree.parse("Data/Paths.xml").getroot()
+    pointRoot = ElementTree.parse("Data/Points.xml").getroot()
 
     mqtt = MQTT()
 

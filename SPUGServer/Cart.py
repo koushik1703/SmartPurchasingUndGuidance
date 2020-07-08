@@ -13,5 +13,4 @@ class Cart:
             cartElement.set("isAssigned", str(False))
             cartElement.set("AssignedToDevice", "")
 
-
         XMLParser.getInstance().writeAndPretify(cartRoot, "Data/Carts.xml")
