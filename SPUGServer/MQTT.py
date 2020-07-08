@@ -10,9 +10,10 @@ import paho.mqtt.client as mqtt
 class MQTT:
 
     def __init__(self):
+        mqttIp = '192.168.137.1'
         MQTT.mqtt_subscriber = mqtt.Client('item tracking receiver')
         MQTT.mqtt_subscriber.on_message = MQTT.on_message
-        MQTT.mqtt_subscriber.connect('192.168.137.1', 1883, 70)
+        MQTT.mqtt_subscriber.connect(mqttIp, 1883, 70)
         MQTT.mqtt_subscriber.subscribe('item/', 2)
         MQTT.mqtt_subscriber.subscribe('pathOccupy/', 2)
         MQTT.mqtt_subscriber.subscribe('pathUnoccupy/', 2)
@@ -20,7 +21,7 @@ class MQTT:
         MQTT.mqtt_subscriber.subscribe('toBuyItem/', 2)
 
         MQTT.mqtt_publisher = mqtt.Client('Device update publisher')
-        MQTT.mqtt_publisher.connect('192.168.137.1', 1883, 70)
+        MQTT.mqtt_publisher.connect(mqttIp, 1883, 70)
 
         threadSubscriber = threading.Thread(target=self.startLoopingSubscriber)
         threadSubscriber.start()
