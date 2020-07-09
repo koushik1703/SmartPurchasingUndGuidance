@@ -41,17 +41,11 @@ class MQTT:
             cartName = messageJson["cartName"]
 
             itemQuery = QueryConstructor.getInstance().constructWithTwoParameter("Item", "itemX", itemPurchasedX, "itemY", itemPurchasedY)
-            costOfItem = itemRoot.find(itemQuery).get('cost')
-            calorieofItem = itemRoot.find(itemQuery).get('calorie')
-            fatofItem = itemRoot.find(itemQuery).get('fat')
-            carbohydrateofItem = itemRoot.find(itemQuery).get('carbohydrate')
-            proteinofItem = itemRoot.find(itemQuery).get('protein')
-            saltofItem = itemRoot.find(itemQuery).get('salt')
 
             cartQuery = QueryConstructor.getInstance().constructWithOneParameter("Cart", "name", cartName)
             deviceIdOfCart = cartRoot.find(cartQuery).get('AssignedToDevice')
 
-            message = {"itemPurchased": itemRoot.find(itemQuery).get('name'), "cost": costOfItem, "calorie": calorieofItem, "fat": fatofItem, "carbohydrate": carbohydrateofItem, "protein": proteinofItem, "salt": saltofItem, "time": str(round(time.time() * 1000))}
+            message = {"itemPurchased": itemRoot.find(itemQuery).get('name')}
             jmsg = json.dumps(message)
             MQTT.mqtt_publisher.publish('deviceUpdate/' + deviceIdOfCart + '/', jmsg, 2)
 
