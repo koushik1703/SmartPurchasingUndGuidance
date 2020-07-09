@@ -80,32 +80,41 @@ class Shortest_Path:
         
         #---------------------Receive Blocking Points from Server---------------------------------------------
         #blocking_points = [(2,1), (0,1), (0,4)] #[[0, 1], [1, 1], [3, 4] ] #Grt the points from the server
-        blocking_points = []
+        BlockingPoints_New = [ ]
         
-        # with open("https_links.txt", 'r') as HTTPS_Links:
-            # for line in HTTPS_Links:
-                # Cmd = line.split(' ')
-                # Coordinate = Cmd[0].split('_')
-                # X_Coor = int(Coordinate[1])
-                # Y_Coor = int(Coordinate[3])
-
-                # HTTPS_Link = Cmd[1]
+        def on_message(client, userdata, message):
+            messageJson = json.loads(message.payload.decode())
+            x_coor_bp = messageJson["X"]
+            y_coor_bp = messageJson["Y"]
+            x_coor_bp = int(x_coor_bp)
+            y_coor_bp = int(y_coor_bp)
+            
+            if((x_coor_bp == -1) and (y_coor_bp == -1)):
+                print("Received Blocking Points Coordiantes %s"%BlockingPoints_New)
+                client.loop_stop()  #Stop the loop_forever
+                client.disconnect() #Disconnect from the loop
                 
-                # Requests = requests.get(HTTPS_Link)
-
-                # Response = int(Requests.status_code)
+            else:
+                Rec_Blocking_Point = [x_coor_bp, y_coor_bp]    
+                BlockingPoints_New.append(Rec_Blocking_Point)
         
-                # if(Response == 404):
-                    # point= (X_Coor, Y_Coor)
-                    # blocking_points.append(point)
+        client = mqtt.Client("RaspBerry_PI_Rec2") #create new instance
+        
+        client.on_message=on_message #attach function to callback
+
+        client.connect('192.168.1.2', 1883, 70) #connect to broker
+
+        client.subscribe("pointOccupied/12/", 2)
+        
+        print("Receiving the blocking point coordinates from server")
+        
+        client.loop_forever() #Loop forever to receive the messages
+        
+        blocking_points = BlockingPoints_New
         #-----------------------------------------------------------------------------------------------------
         
         #------------------------Calculate the shortest path using Travveling Salesman Problem----------------
-        print("""The minimum distance to visit all the following points: {}\n \
-                  starting at {}""".format(tuple(points),points[0]))
-        
-        print("""With travelling salesman algorithm is {}""".format(
-            self.Total_distance(self.Travelling_salesman(points))))
+        self.Total_distance(self.Travelling_salesman(points))    
         
         print("Shortest path is : ")
         print(self.tsp_path)
