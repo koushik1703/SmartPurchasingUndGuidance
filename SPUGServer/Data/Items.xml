@@ -1,0 +1,27 @@
+<Items>
+  <Item itemNum="0" name="item0" itemX="0" itemY="0" count="388" cost="161" calorie="303" fat="48" carbohydrate="5" protein="2" salt="5"/>
+  <Item itemNum="1" name="item1" itemX="0" itemY="1" count="273" cost="88" calorie="912" fat="43" carbohydrate="0" protein="2" salt="0"/>
+  <Item itemNum="2" name="item2" itemX="0" itemY="2" count="231" cost="16" calorie="155" fat="88" carbohydrate="5" protein="3" salt="4"/>
+  <Item itemNum="3" name="item3" itemX="0" itemY="3" count="415" cost="175" calorie="905" fat="99" carbohydrate="1" protein="2" salt="6"/>
+  <Item itemNum="4" name="item4" itemX="0" itemY="4" count="263" cost="38" calorie="810" fat="35" carbohydrate="9" protein="4" salt="7"/>
+  <Item itemNum="5" name="item5" itemX="1" itemY="0" count="90" cost="5" calorie="788" fat="23" carbohydrate="5" protein="3" salt="8"/>
+  <Item itemNum="6" name="item6" itemX="1" itemY="1" count="144" cost="70" calorie="726" fat="17" carbohydrate="3" protein="2" salt="2"/>
+  <Item itemNum="7" name="item7" itemX="1" itemY="2" count="351" cost="104" calorie="818" fat="16" carbohydrate="9" protein="0" salt="8"/>
+  <Item itemNum="8" name="item8" itemX="1" itemY="3" count="380" cost="67" calorie="960" fat="59" carbohydrate="7" protein="2" salt="6"/>
+  <Item itemNum="9" name="item9" itemX="1" itemY="4" count="62" cost="58" calorie="215" fat="15" carbohydrate="8" protein="2" salt="4"/>
+  <Item itemNum="10" name="item10" itemX="2" itemY="0" count="218" cost="49" calorie="429" fat="57" carbohydrate="5" protein="3" salt="6"/>
+  <Item itemNum="11" name="item11" itemX="2" itemY="1" count="330" cost="123" calorie="16" fat="92" carbohydrate="6" protein="2" salt="9"/>
+  <Item itemNum="12" name="item12" itemX="2" itemY="2" count="375" cost="70" calorie="695" fat="43" carbohydrate="2" protein="2" salt="7"/>
+  <Item itemNum="13" name="item13" itemX="2" itemY="3" count="213" cost="144" calorie="252" fat="41" carbohydrate="5" protein="1" salt="1"/>
+  <Item itemNum="14" name="item14" itemX="2" itemY="4" count="408" cost="115" calorie="352" fat="29" carbohydrate="6" protein="3" salt="5"/>
+  <Item itemNum="15" name="item15" itemX="3" itemY="0" count="438" cost="122" calorie="982" fat="70" carbohydrate="6" protein="1" salt="4"/>
+  <Item itemNum="16" name="item16" itemX="3" itemY="1" count="320" cost="81" calorie="147" fat="82" carbohydrate="8" protein="3" salt="4"/>
+  <Item itemNum="17" name="item17" itemX="3" itemY="2" count="89" cost="160" calorie="611" fat="76" carbohydrate="9" protein="0" salt="0"/>
+  <Item itemNum="18" name="item18" itemX="3" itemY="3" count="430" cost="167" calorie="97" fat="42" carbohydrate="2" protein="3" salt="4"/>
+  <Item itemNum="19" name="item19" itemX="3" itemY="4" count="165" cost="6" calorie="7" fat="1" carbohydrate="3" protein="3" salt="1"/>
+  <Item itemNum="20" name="item20" itemX="4" itemY="0" count="104" cost="120" calorie="966" fat="56" carbohydrate="7" protein="0" salt="7"/>
+  <Item itemNum="21" name="item21" itemX="4" itemY="1" count="84" cost="129" calorie="586" fat="93" carbohydrate="7" protein="2" salt="6"/>
+  <Item itemNum="22" name="item22" itemX="4" itemY="2" count="89" cost="122" calorie="238" fat="87" carbohydrate="2" protein="0" salt="8"/>
+  <Item itemNum="23" name="item23" itemX="4" itemY="3" count="144" cost="65" calorie="732" fat="62" carbohydrate="2" protein="0" salt="6"/>
+  <Item itemNum="24" name="item24" itemX="4" itemY="4" count="488" cost="3" calorie="969" fat="8" carbohydrate="6" protein="3" salt="3"/>
+</Items>
