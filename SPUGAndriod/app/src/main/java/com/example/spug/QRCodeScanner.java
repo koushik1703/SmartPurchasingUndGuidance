@@ -19,6 +19,7 @@ import org.json.JSONObject;
 public class QRCodeScanner extends AppCompatActivity {
     private CodeScanner mCodeScanner;
     Activity activity = this;
+    AppCompatActivity appCompatActivity = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +36,8 @@ public class QRCodeScanner extends AppCompatActivity {
                         JSONObject json = null;
                         try {
                             json = new JSONObject(result.getText());
-                            ItemToBuyDialog itemToBuyDialog = new ItemToBuyDialog(json);
+                            ItemToBuyDialog itemToBuyDialog = new ItemToBuyDialog(json, appCompatActivity);
                             itemToBuyDialog.show(getSupportFragmentManager(), "Item to buy dialog");
-                            finish();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -45,13 +45,8 @@ public class QRCodeScanner extends AppCompatActivity {
                 });
             }
         });
-        scannerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mCodeScanner.startPreview();
-                finish();
-            }
-        });
+
+        mCodeScanner.startPreview();
     }
 
     @Override

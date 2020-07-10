@@ -1,27 +1,27 @@
 <Points>
-  <Point X="0" Y="0" isPointOccupied="False"/>
+  <Point X="0" Y="0" isPointOccupied="True"/>
   <Point X="0" Y="1" isPointOccupied="True"/>
-  <Point X="0" Y="2" isPointOccupied="True"/>
-  <Point X="0" Y="3" isPointOccupied="False"/>
-  <Point X="0" Y="4" isPointOccupied="True"/>
-  <Point X="1" Y="0" isPointOccupied="True"/>
-  <Point X="1" Y="1" isPointOccupied="False"/>
-  <Point X="1" Y="2" isPointOccupied="False"/>
-  <Point X="1" Y="3" isPointOccupied="False"/>
+  <Point X="0" Y="2" isPointOccupied="False"/>
+  <Point X="0" Y="3" isPointOccupied="True"/>
+  <Point X="0" Y="4" isPointOccupied="False"/>
+  <Point X="1" Y="0" isPointOccupied="False"/>
+  <Point X="1" Y="1" isPointOccupied="True"/>
+  <Point X="1" Y="2" isPointOccupied="True"/>
+  <Point X="1" Y="3" isPointOccupied="True"/>
   <Point X="1" Y="4" isPointOccupied="True"/>
-  <Point X="2" Y="0" isPointOccupied="True"/>
-  <Point X="2" Y="1" isPointOccupied="True"/>
+  <Point X="2" Y="0" isPointOccupied="False"/>
+  <Point X="2" Y="1" isPointOccupied="False"/>
   <Point X="2" Y="2" isPointOccupied="True"/>
   <Point X="2" Y="3" isPointOccupied="False"/>
   <Point X="2" Y="4" isPointOccupied="True"/>
   <Point X="3" Y="0" isPointOccupied="False"/>
-  <Point X="3" Y="1" isPointOccupied="False"/>
+  <Point X="3" Y="1" isPointOccupied="True"/>
   <Point X="3" Y="2" isPointOccupied="False"/>
   <Point X="3" Y="3" isPointOccupied="False"/>
   <Point X="3" Y="4" isPointOccupied="True"/>
-  <Point X="4" Y="0" isPointOccupied="True"/>
+  <Point X="4" Y="0" isPointOccupied="False"/>
   <Point X="4" Y="1" isPointOccupied="True"/>
-  <Point X="4" Y="2" isPointOccupied="False"/>
+  <Point X="4" Y="2" isPointOccupied="True"/>
   <Point X="4" Y="3" isPointOccupied="False"/>
-  <Point X="4" Y="4" isPointOccupied="False"/>
+  <Point X="4" Y="4" isPointOccupied="True"/>
 </Points>

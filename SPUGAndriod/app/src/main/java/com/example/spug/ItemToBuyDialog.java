@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -21,8 +22,11 @@ import org.json.JSONObject;
 public class ItemToBuyDialog extends AppCompatDialogFragment {
 
     JSONObject json;
-    public ItemToBuyDialog(JSONObject json) {
+    AppCompatActivity previousActivity;
+
+    public ItemToBuyDialog(JSONObject json, AppCompatActivity appCompatActivity) {
         this.json = json;
+        this.previousActivity = appCompatActivity;
     }
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -52,6 +56,7 @@ public class ItemToBuyDialog extends AppCompatDialogFragment {
                             @Override
                             public void onSuccess(IMqttToken asyncActionToken) {
                                 try {
+                                    previousActivity.finish();
                                     MqttMessage message = new MqttMessage();
                                     String jsonMessage = "{\"toBuyItem\": " + "\"" + "YES" + "\"" +", \"deviceId\": " + "\"" + MainActivity.uniqueID + "\"" + ", \"itemPurchased\": " + "\"" + json.getString("itemPurchased") +"\"" +"}";
                                     message.setPayload(jsonMessage.getBytes());
@@ -87,6 +92,7 @@ public class ItemToBuyDialog extends AppCompatDialogFragment {
                         @Override
                         public void onSuccess(IMqttToken asyncActionToken) {
                             try {
+                                previousActivity.finish();
                                 MqttMessage message = new MqttMessage();
                                 String jsonMessage = "{\"toBuyItem\": " + "\"" + "NO" + "\"" +", \"deviceId\": " + "\"" + MainActivity.uniqueID + "\"" + ", \"itemPurchased\": " + "\"" + json.getString("itemPurchased") +"\"" +"}";
                                 message.setPayload(jsonMessage.getBytes());
