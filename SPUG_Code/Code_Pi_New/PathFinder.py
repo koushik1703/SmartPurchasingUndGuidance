@@ -1,7 +1,6 @@
 from itertools import permutations
 import json
 import paho.mqtt.client as mqtt
-import requests
 
 from PDDL_Generator import *
 from SPUG_Run import *

@@ -2,7 +2,7 @@ import time
 from Motor import *
 from Ultrasonic import *
 import RPi.GPIO as GPIO
-from servo import *
+from Led import *
 from PCA9685 import PCA9685
 import json
 import paho.mqtt.client as mqtt #import the client1
@@ -348,7 +348,7 @@ class SPUG:
         #----------------------------------------Send MQTT Path Occupy Message-------------------------------------------------
         client = mqtt.Client("RaspBerry_PI_1") #create new instance
         
-        client.connect('192.168.1.2', 1883, 70) #connect to broker
+        client.connect('192.168.1.9', 1883, 70) #connect to broker
         
         client.loop_start()
             
@@ -357,18 +357,18 @@ class SPUG:
             
         msg1 = json.dumps(message1)
         
-        client.publish("pathOccupy/",msg1, 2)
+        client.publish("pointOccupy/",msg1, 2)
         
         time.sleep(0.1)
             
-        print("Path Occupy message Sent from Pi :" +time.ctime() +" " +msg1)
+        print("Point Occupy message Sent from Pi :" +time.ctime() +" " +msg1)
         #------------------------------------------------------------------------------------------------------------------------
 
         #----------------------------------------Send MQTT Path Un-Occupy Message-------------------------------------------------
         if(self.Is_Intermediate_DestinTion_Reached()):             
             client = mqtt.Client("RaspBerry_PI_2") #create new instance
         
-            client.connect('192.168.1.2', 1883, 70) #connect to broker
+            client.connect('192.168.1.9', 1883, 70) #connect to broker
         
             client.loop_start()
             
@@ -377,18 +377,18 @@ class SPUG:
             
             msg2 = json.dumps(message2)
         
-            client.publish("pathUnoccupy/",msg2, 2)
+            client.publish("pointUnoccupy/",msg2, 2)
         
             time.sleep(0.1)
             
-            print("Path Un-Occupy message Sent from Pi :" +time.ctime() +" " +msg2)
+            print("Point Un-Occupy message Sent from Pi :" +time.ctime() +" " +msg2)
         #------------------------------------------------------------------------------------------------------------------------- 
         
         #----------------------------------------Send MQTT Item Purchased Message-------------------------------------------------
         if(self.Is_Product_DestinTion_Reached()):
             client = mqtt.Client("RaspBerry_PI_3") #create new instance
         
-            client.connect('192.168.1.2', 1883, 70) #connect to broker
+            client.connect('192.168.1.9', 1883, 70) #connect to broker
         
             client.loop_start()
             
@@ -435,7 +435,7 @@ class SPUG:
         #------------------------------------------Ultrasonic sensor and Servo Motor Class
         self.Ultrasonic=Ultrasonic()
         
-        self.Pwm=Servo()
+        self.LED=Led()
         
         self.Junction = 0
 
@@ -454,6 +454,8 @@ class SPUG:
         
         
             if(Distance > 15.0):
+                self.LED.ledIndex(0x20,0,0,0)      #Red
+                self.LED.ledIndex(0x40,0,0,0)      #Red
                 if((IR_Left == 0) and (IR_Mid == 1) and (IR_Right == 0)):
                     self.Movement_Type = 5 #Move Forward
                     self.Junction = 0 #Clear the Junction Variable
@@ -480,6 +482,8 @@ class SPUG:
                     
             else:
                 self.Movement_Type = 0 #Stop Movement
+                self.LED.ledIndex(0x20,255,125,0)      #Orange
+                self.LED.ledIndex(0x40,255,125,0)      #Orange
 
             #Actuate the motors to move cart to the specific Coordinate
             self.Move_Cart(self.Movement_Type)
