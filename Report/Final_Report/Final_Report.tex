@@ -1,0 +1,203 @@
+% This is samplepaper.tex, a sample chapter demonstrating the
+% LLNCS macro package for Springer Computer Science proceedings;
+% Version 2.20 of 2017/10/04
+%
+\documentclass[runningheads]{llncs}
+%
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+\begin{document}
+%
+\title{SPUG - Smart Purchasing and Guidance}
+
+\author{Group 8: 
+Meghna Suresh \and Deepak Nadagouda \and Koushik Ragavendran}
+
+\institute{Service Computing Department, IAAS, University of Stuttgart
+\email{st169606@stud.uni-stuttgart.de, st170609@stud.uni-stuttgart.de, st169478@stud.uni-stuttgart.de}}
+%
+\maketitle              % typeset the header of the contribution
+%
+\begin{abstract}
+Commercial buildings have become an essential part of modern city culture. Embedding IoT technology in places such as malls upgrades user experience and offers to provide proficiency. SPUG is devoted to increase the comfort, hygiene and safety, and also the efficiency of the store. This system, placed in a smart commercial space aims at providing comfort to shoppers by implementing an automated trolley movement in the interior of a store, navigating on the shortest path computed to all the sections that a shopper needs to go based on the user defined  shopping list from their very phones. The trolley communicates with the central server and hence can also access the “shopper-density” in a section, which facilitates adequately to promote social distancing in the current scenario. This feature addresses health concern of the occupants in the store. The trolley also reads the products with a smart tag reader and bills them, with the store database to support it. With the billing done so fast, shoppers are essentially relieved from straining themselves from standing in long queues, and avoid coming in contact with others for hygienic reasons.
+
+\keywords{Smart Shopping  \and Smart Trolley \and Navigation \and Quick Billing}
+\end{abstract}
+%
+%
+%
+\section{System Introduction}
+The most common problem people face while shopping is to locate the section in which the product is, and to find the direction to that section, and after reaching there, and finding out that the product is sold out. Another issue is patiently waiting in a long queue to checkout even for a handful of items.  \newline
+
+The SPUG system consists of three main components:
+\begin{enumerate}[label*=\roman*.]
+\item \textbf{Smart Trolley}: The trolley is integrated with sensors and actuators and an interface to communicate with the central server and the mobile application. A position sensor is used to detect the current position of the cart within the super market. An obstacle detection sensor is used to prevent collision during automated movement and finally an object identification sensor is used to identify the products purchased by the customer and to bill the amount. 
+
+\item \textbf{Centralised Server}: The central server holds data corresponding to the number units of the product currently available, their price value, and maps the area on the floor plan in which the products are placed.
+
+\item \textbf{Mobile Application}: The application acts as an interface for the customer to connect to the SPUG and vice versa.
+\end{enumerate}
+
+Once the customer enters the super market he connects to the smart trolley through the mobile application and enter the list of products which he intends to buy. The application contacts the centralised server and gets the current status of the products and informs the user if the product is out of stock and for the available products, the SPUG guides the user to the particular sections.
+
+The trolley calculates its current position and communicates with centralised server to know the  position of the products and guide the user to that location. The route is calculated based on the shortest path and avoids the sections which are crowded. Crowd density is calculated based on the number of the shopping carts in a particular area.  
+
+After the user has picked all the products he can bill it with the object identification sensor. The sensor communicates with the centralised server to get the prices of the products. Once the product is scanned the information is shown in the mobile application through which the user can pay the bill amount. Then these items are removed from the available set of products in the database.
+
+\section{System Analysis}
+Listed below are the major expectations of the user:
+\begin{enumerate}[label*=\roman*.]
+\item Finding directions to the desired product sections and getting to know the price and availability of the products beforehand. 
+
+\item Avoiding the crowded section of the super market.
+
+\item Minimizing contact with shopping carts to prevent germ contamination.
+
+\item Avoiding long waits in queues for getting the products billed.
+\end{enumerate}
+
+All the above expectations of the users are met with the SPUG system. 
+  
+\section{System Architecture Design}
+The figure \textbf{Fig. 1.} gives the system architecture of SPUG.
+\begin{figure}
+\includegraphics[width=\textwidth]{fig1}
+\caption{System Architecture} \label{fig1}
+\end{figure}
+
+\section{System Implementation}
+
+
+The system is mainly divided into Centralised server, Mobile application, Smart Trolley and the Track for the Smart Trolley. We will consider the Smart Trolley as SPUG for future references. Each of the subsystem is explained in detail below.
+
+\subsection{Track}
+The track for movement of SPUG will be similar as shown in figure \textbf{Fig. 2.}. The following assumptions are considered:
+\begin{enumerate}[label*=\roman*.]
+\item The products are located at the nodes. 
+\item Directions are considered to be absolute. 
+\item Initially SPUG starts at origin and is facing North as shown in figure \textbf{Fig. 3.}.
+\item  At all the nodes SPUG’s three IR Sensors detect the track, even at the boundaries of the track. 
+\item Any other obstacles such as humans can be present on track.
+\item At a given point some of the nodes may be occupied by other SPUGs'.
+
+\end{enumerate}
+
+\begin{figure}[!tbp]
+  \centering
+  \begin{minipage}[b]{0.35\textwidth}
+    \includegraphics[scale=0.6]{Track}
+    \caption{SPUG Track}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[scale=0.4]{Initial_Position}
+    \caption{Initial position of SPUG}
+  \end{minipage}
+\end{figure}
+
+\subsection{SPUG}
+
+SPUG is the cart that autonomously moves to the product location that the user desires to buy. It calculates the shortest path to all the desired products by avoiding the other SPUG present. SPUG consists of the following components:
+
+\begin{enumerate}[label*=\roman*.]
+
+\item Infrared sensors: It has 3 IR sensors in the front which are parallelly placed to each other to sense the track. The sensor cluster is perpendicular to the track as shown in figure \textbf{Fig. 4.}.
+\begin{figure}
+\begin{center} 
+\includegraphics[scale=1]{IR_Sensors}
+\caption{IR Sensors Placement} \label{figure 4}
+\end{center}
+\end{figure}
+\item Smart Trolley:Ultrasonic sensor: It has a ultrasonic sensor in the front to check if there are any obstacles present on the path. 
+\item DC Motors: It has four independently operated DC motors, which allows the cart to move in all the four directions. 
+\item LED’s: The LED’s glow orange when there is an obstacle present within a threshold distance in the path of the SPUG.
+\item Raspberry PI: It is the main controller which collects the data from sensors and controls the actuators. It communicates with the server to receive the product locations and blocking points and sends data to server regarding the current position in the map and if the product location is reached. It runs the AI planner to determine the shortest path to the products and back to the origin. 
+
+\end{enumerate}
+
+Below is the detailed explanation of the sub-aspects of SPUG:
+
+\subsubsection{Movement of SPUG:}
+SPUG receives the coordinates of the Products that the user has desired to buy. The product location coordinates are sent as JSON messages through MQTT Communication established between the Server and the specific SPUG. Once product locations are received it waits for the Blocking points. Blocking points are the locations which are occupied by the other SPUGs’. Blocking points are considered to be static in our scenario. The messages are sent in the same way as before. 
+
+For example, the product location points and the blocking points updated on a cartesian coordinates map is shown in figure \textbf{Fig. 5.} for the following example: \newline
+Product Location Points: [(0, 2), (2, 4), (6, 2), (3, 1), (5, 5)]  \newline
+Blocking Points: [(0 ,1), (1, 4), (4, 4), (4, 5)] 
+
+\begin{figure}
+\begin{center} 
+\includegraphics[scale=0.5]{Points to visit and Blocking Points}
+\caption{Product location and Blocking Points} \label{figure 5}
+\end{center}
+\end{figure}
+
+Afterwards the shortest path to reach all the product locations and back to the origin point is calculated. The shortest path is calculated according to the \textbf{“Travelling Salesman Problem”} by considering the \textbf{"Manhattan"} distance between the product location points. According to the travelling salesman problem a shortest possible route that visits each city and back to the origin city has to be found given a list of cities and the distances between each pair of cities. 
+
+The product location coordinates are ordered according to the shortest path calculated as show in figure 6. The origin and the first product coordinate as per the sequence and the blocking points are given to the AI Planner. AI planner considers the origin as initial point and the first product location as destination point and finds a possible solution to reach the destination by avoiding the blocking points. The SPUG reads the solution from the AI planner and moves accordingly to reach the product location as shown in figure \textbf{Fig. 6.}.  Similarly, a path is calculated between a pair of points as per the shortest path sequence by the AI Planner as shown in figure \textbf{Fig. 7.} to figure \textbf{Fig. 11.}. 
+
+\begin{figure}[!tbp]
+  \centering
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[scale=0.5]{Move - 1}
+    \caption{Move - 1}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[scale=0.5]{Move - 2}
+    \caption{Move - 2}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[!tbp]
+  \centering
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[scale=0.5]{Move - 3}
+    \caption{Move - 3}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[scale=0.5]{Move - 4}
+    \caption{Move - 4} 
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[!tbp]
+  \centering
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[scale=0.5]{Move - 5}
+    \caption{Move - 5}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[scale=0.5]{Move - 6}
+    \caption{Move - 6}
+  \end{minipage}
+\end{figure}
+
+Once the SPUG reaches the product location a MQTT message will be sent to the server indicating that the product location is reached. User gets a notification in the mobile application to confirm if he wants to buy the product. If yes, the product will be added to the cart and a message will be sent to the SPUG to move the next product location. If no, SPUG just moves on to the next location. SPUG waits till it gets the response from the user.
+ 
+While the SPUG is at a particular coordinate a path occupy message is sent to the server as a MQTT message. Server receives this message and sets that particular path as occupied. Once it moves away from the occupied path PUG send a path un-occupy message to the server. Server frees the path which was occupied before. In this was the server gets to know the free paths and the location of all the SPUGs’ in the map.
+
+\subsubsection{Obstacle detection:}
+If there are any obstacles on path SPUG can detect the distance to the obstacles in the front. If the distance to the obstacle is below a threshold it stops moving and LED’s glow Orange indicating the user that the cart stopped due to the obstacle. If the obstacle is removed then the LED’s turn off and the SPUG starts moving back to the location it was scheduled to go. 
+ 
+
+
+\section{Conclusion}
+By this implementation, we desire to bring better user experience on shopping by increasing the comfort, hygiene and efficiency for the user using smart buildings, IoT, AI and connected devices.
+
+%
+% ---- Bibliography ----
+%
+\bibliographystyle{splncs04}
+\bibliography{mybib}
+\section {Bibliography}
+\begin{enumerate}
+\item A. Kumar, A. Gupta, S. Balamurugan, S. Balaji and R. Marimuthu, "Smart Shopping Cart," 2017 International conference on Microelectronic Devices, Circuits and Systems (ICMDCS), Vellore, 2017, pp. 1-4.\newline
+\item X. Liu, H. Zhang, J. Fang, G. Guan and Y. Huang, "Intelligent shopping cart with quick payment based on dynamic target tracking," 2016 4th International Conference on Cloud Computing and Intelligence Systems (CCIS), Beijing, 2016, pp. 88-93.\newline
+\item P. Chandrasekar and T. Sangeetha, "Smart shopping cart with automatic billing system through RFID and ZigBee" International Conference on Information Communication and Embedded Systems (ICICES2014), Chennai, 2014, pp. 1-4.
+\end{enumerate}
+
+
+\end{document}
