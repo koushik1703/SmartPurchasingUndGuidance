@@ -10,17 +10,18 @@ import paho.mqtt.client as mqtt
 class MQTT:
 
     def __init__(self):
+        mqttIp = '192.168.137.1'
         MQTT.mqtt_subscriber = mqtt.Client('item tracking receiver')
         MQTT.mqtt_subscriber.on_message = MQTT.on_message
-        MQTT.mqtt_subscriber.connect('192.168.137.1', 1883, 70)
+        MQTT.mqtt_subscriber.connect(mqttIp, 1883, 70)
         MQTT.mqtt_subscriber.subscribe('item/', 2)
-        MQTT.mqtt_subscriber.subscribe('pathOccupy/', 2)
-        MQTT.mqtt_subscriber.subscribe('pathUnoccupy/', 2)
+        MQTT.mqtt_subscriber.subscribe('pointOccupy/', 2)
+        MQTT.mqtt_subscriber.subscribe('pointUnoccupy/', 2)
         MQTT.mqtt_subscriber.subscribe('buyItemFromDevice/', 2)
         MQTT.mqtt_subscriber.subscribe('toBuyItem/', 2)
 
         MQTT.mqtt_publisher = mqtt.Client('Device update publisher')
-        MQTT.mqtt_publisher.connect('192.168.137.1', 1883, 70)
+        MQTT.mqtt_publisher.connect(mqttIp, 1883, 70)
 
         threadSubscriber = threading.Thread(target=self.startLoopingSubscriber)
         threadSubscriber.start()
@@ -32,7 +33,7 @@ class MQTT:
         messageJson = json.loads(message.payload.decode())
         itemRoot = ElementTree.parse("Data/Items.xml").getroot()
         cartRoot = ElementTree.parse("Data/Carts.xml").getroot()
-        pathRoot = ElementTree.parse("Data/Paths.xml").getroot()
+        pointRoot = ElementTree.parse("Data/Points.xml").getroot()
 
         if message.topic == 'item/':
             itemPurchasedX = messageJson["itemPurchasedX"]
@@ -40,43 +41,29 @@ class MQTT:
             cartName = messageJson["cartName"]
 
             itemQuery = QueryConstructor.getInstance().constructWithTwoParameter("Item", "itemX", itemPurchasedX, "itemY", itemPurchasedY)
-            costOfItem = itemRoot.find(itemQuery).get('cost')
-            calorieofItem = itemRoot.find(itemQuery).get('calorie')
-            fatofItem = itemRoot.find(itemQuery).get('fat')
-            carbohydrateofItem = itemRoot.find(itemQuery).get('carbohydrate')
-            proteinofItem = itemRoot.find(itemQuery).get('protein')
-            saltofItem = itemRoot.find(itemQuery).get('salt')
 
             cartQuery = QueryConstructor.getInstance().constructWithOneParameter("Cart", "name", cartName)
             deviceIdOfCart = cartRoot.find(cartQuery).get('AssignedToDevice')
 
-            message = {"itemPurchased": itemRoot.find(itemQuery).get('name'), "cost": costOfItem, "calorie": calorieofItem, "fat": fatofItem, "carbohydrate": carbohydrateofItem, "protein": proteinofItem, "salt": saltofItem, "time": str(round(time.time() * 1000))}
+            message = {"itemPurchased": itemRoot.find(itemQuery).get('name')}
             jmsg = json.dumps(message)
             MQTT.mqtt_publisher.publish('deviceUpdate/' + deviceIdOfCart + '/', jmsg, 2)
 
-        if message.topic == 'pathOccupy/':
-            fromX = messageJson["fromx"]
-            fromY = messageJson["fromy"]
-            toX = messageJson["tox"]
-            toY = messageJson["toy"]
+        if message.topic == 'pointOccupy/':
+            x = messageJson["x"]
+            y = messageJson["y"]
 
-            pathQuery = QueryConstructor.getInstance().constructWithFourParameter("Path", "fromX", fromX, "fromY", fromY, "toX", toX, "toY", toY)
-            pathRoot.find(pathQuery).set("isPathOccupied", "True")
-            pathQuery = QueryConstructor.getInstance().constructWithFourParameter("Path", "toX", toX, "toY", toY, "fromX", fromX, "fromY", fromY)
-            pathRoot.find(pathQuery).set("isPathOccupied", "True")
-            XMLParser.getInstance().writeAndPretify(pathRoot, "Data/Paths.xml")
+            pointQuery = QueryConstructor.getInstance().constructWithFourParameter("Point", "X", x, "Y", y)
+            pointRoot.find(pointQuery).set("isPointOccupied", "True")
+            XMLParser.getInstance().writeAndPretify(pointRoot, "Data/Points.xml")
 
-        if message.topic == 'pathUnoccupy/':
-            fromX = messageJson["fromx"]
-            fromY = messageJson["fromy"]
-            toX = messageJson["tox"]
-            toY = messageJson["toy"]
+        if message.topic == 'pointUnoccupy/':
+            x = messageJson["x"]
+            y = messageJson["y"]
 
-            pathQuery = QueryConstructor.getInstance().constructWithFourParameter("Path", "fromX", fromX, "fromY", fromY, "toX", toX, "toY", toY)
-            pathRoot.find(pathQuery).set("isPathOccupied", "False")
-            pathQuery = QueryConstructor.getInstance().constructWithFourParameter("Path", "toX", toX, "toY", toY, "fromX", fromX, "fromY", fromY)
-            pathRoot.find(pathQuery).set("isPathOccupied", "False")
-            XMLParser.getInstance().writeAndPretify(pathRoot, "Data/Paths.xml")
+            pointQuery = QueryConstructor.getInstance().constructWithFourParameter("Point", "X", x, "Y", y)
+            pointRoot.find(pointQuery).set("isPointOccupied", "False")
+            XMLParser.getInstance().writeAndPretify(pointRoot, "Data/Points.xml")
 
         if message.topic == 'buyItemFromDevice/':
             itemName = messageJson["itemName"]
@@ -97,6 +84,19 @@ class MQTT:
             jmsg = json.dumps(message)
             MQTT.mqtt_publisher.publish('buyItemFromServer/' + cartName + '/', jmsg, 2)
 
+            if itemName == "over":
+                for i in range(5):
+                    for j in range(5):
+                        pointQuery = QueryConstructor.constructWithTwoParameter("Point", "X", str(i), "Y", str(j))
+                        if pointRoot.find(pointQuery).get("isPointOccupied") == "True":
+                            message = {"X": pointRoot.find(pointQuery).get("X"), "Y": pointRoot.find(pointQuery).get("Y")}
+                            jmsg = json.dumps(message)
+                            MQTT.mqtt_publisher.publish('pointOccupied/'+ cartName + '/', jmsg, 2)
+
+                message = {"X": "-1", "Y": "-1"}
+                jmsg = json.dumps(message)
+                MQTT.mqtt_publisher.publish('pointOccupied/' + cartName + '/', jmsg, 2)
+
         if message.topic == 'toBuyItem/':
             toBuyItem = messageJson["toBuyItem"]
             deviceId = messageJson["deviceId"]
@@ -107,8 +107,10 @@ class MQTT:
                 currCount = int(itemRoot.find(itemQuery).get('count')) - 1;
                 itemRoot.find(itemQuery).set('count', str(currCount))
 
+            message = {"null": "null"}
+            jmsg = json.dumps(message)
             cartQuery = QueryConstructor.getInstance().constructWithOneParameter("Cart", "AssignedToDevice", deviceId)
-            MQTT.mqtt_publisher.publish('continue/' + cartRoot.find(cartQuery).get('cartNum') + '/')
+            MQTT.mqtt_publisher.publish('continue/' + cartRoot.find(cartQuery).get('cartNum') + '/', jmsg, 2)
 
             XMLParser.getInstance().writeAndPretify(itemRoot, "Data/Items.xml")
 

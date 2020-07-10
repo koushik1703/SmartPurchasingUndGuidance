@@ -2,6 +2,7 @@ package com.example.spug;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -39,7 +40,7 @@ public class UnAssignCartView extends AppCompatActivity {
         });
 
         String clientId = MqttClient.generateClientId();
-        final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(this.getApplicationContext(), "tcp://192.168.137.1:1883", clientId);
+        final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(this.getApplicationContext(), MainActivity.mqttUrl, clientId);
 
         try {
             IMqttToken token = mqttAndroidClient.connect();
@@ -72,8 +73,8 @@ public class UnAssignCartView extends AppCompatActivity {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                JSONObject json = new JSONObject(new String(message.getPayload()));
-                openDialog(json);
+                Intent intent = new Intent(getApplicationContext(), QRCodeScanner.class);
+                startActivity(intent);
             }
 
             @Override
@@ -81,10 +82,5 @@ public class UnAssignCartView extends AppCompatActivity {
 
             }
         });
-    }
-
-    public void openDialog(JSONObject json) {
-        ItemToBuyDialog itemToBuyDialog = new ItemToBuyDialog(json);
-        itemToBuyDialog.show(getSupportFragmentManager(), "Item to buy dialog");
     }
 }

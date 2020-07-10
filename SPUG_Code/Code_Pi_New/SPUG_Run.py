@@ -2,7 +2,7 @@ import time
 from Motor import *
 from Ultrasonic import *
 import RPi.GPIO as GPIO
-from servo import *
+from Led import *
 from PCA9685 import PCA9685
 import json
 import paho.mqtt.client as mqtt #import the client1
@@ -36,24 +36,30 @@ class SPUG:
         self.x_init = 0
         self.y_init = 0
     
-        #Intermediate Destination Position
-        self.x_pro_des = 0
-        self.y_pro_des = 0
+        #Product Location Positions
+        self.x_pro_des = 3   #Test Initialization
+        self.y_pro_des = 3   #Test Initialization
         
-        #Intermediate Destination Position
-        self.x_inter_des = 3
-        self.y_inter_des = 3
+        #Intermediate Destination Positions
+        self.x_inter_des = 3  #Test Initialization
+        self.y_inter_des = 3  #Test Initialization
 
-        #Local Position
+        #Local Position of the SPUG
         self.l_x = 0
         self.l_y = 0
     
+        #SPUG Starts at Coordinate [0 ,0] facing North
         self.Orientation = "North"
         
+        #SPUG Number
         self.Cart_Number = 12
     
+        #Variable to calculate the Position of SPUG after movement
         self.Moved_Straight_New = 0
         self.Moved_Straight_Old = 0
+        
+        self.Moved_Reverse_New = 0
+        self.Moved_Reverse_Old = 0
     
         self.Moved_Left_New = 0
         self.Moved_Left_Old = 0
@@ -61,37 +67,53 @@ class SPUG:
         self.Moved_Right_New = 0
         self.Moved_Right_Old = 0
     
+        #Total moves made by SPUG
         self.Total_Moves = 0
+        
+        #Intermediate Position Reached by SPUG
         self.Inter_Target_Reached = 0
+        
+        #Product Location Reached by SPUG
         self.Product_Des_Reached = 0
         
+        #SPUG presesnt at junction
         self.Junction = 0
         
+        #SPUG at [0 ,0] coordinate: 
+        # 0 - Present at [0,0] coordinate 
+        # 1 - Not pressent at [0,0] coordinate
         self.IntialJunction = 0
 
+    #Function to set the intermediate coordinates to navigate SPUG
     def Set_intermediate_destnation_position(self,x_destination,y_destnation):
         self.x_inter_des = x_destination
         self.y_inter_des = y_destnation
         
         self.Inter_Target_Reached = 0
-        
+
+    #Function to set the Product locations to message the server if the product location is reached  
     def Set_product_destnation_position(self,x_destination,y_destnation):
         self.x_pro_des = x_destination
         self.y_pro_des = y_destnation
         
         self.Product_Des_Reached = 0
         
+    #Function to get the current coordinates of SPUG
     def Get_curent_position(self):
         return self.l_x, self.l_y
         
+    #Function to get if Intermediate position is reached
     def Is_Intermediate_DestinTion_Reached(self):
         return self.Inter_Target_Reached
 
+    #Function to get if Product location is reached
     def Is_Product_DestinTion_Reached(self):
         return self.Product_Des_Reached
     
+    #Function to update the coordinates and get the direction to move
     def Mov_According_To_Specified_position(self): 
 
+        #Intial Position Before Movement
         self.x_init = self.l_x   
         self.y_init = self.l_y
           
@@ -116,6 +138,25 @@ class SPUG:
                 
                 elif(self.Orientation == "West"):
                     self.l_x = self.l_x - 1
+                    self.l_y = self.l_y
+                    
+                Coordinates_Updated = 1
+                                
+            elif(self.Moved_Reverse_New != self.Moved_Reverse_Old):
+                if(self.Orientation == "North"):
+                    self.l_x = self.l_x
+                    self.l_y = self.l_y - 1
+                
+                elif(self.Orientation == "South"):
+                    self.l_x = self.l_x
+                    self.l_y = self.l_y + 1
+                
+                elif(self.Orientation == "East"):
+                    self.l_x = self.l_x - 1
+                    self.l_y = self.l_y
+                
+                elif(self.Orientation == "West"):
+                    self.l_x = self.l_x + 1
                     self.l_y = self.l_y
                     
                 Coordinates_Updated = 1
@@ -171,12 +212,12 @@ class SPUG:
                 self.Total_Moves = self.Total_Moves + 1
                 
             self.Moved_Straight_New = self.Moved_Straight_Old
+            self.Moved_Reverse_New = self.Moved_Reverse_Old
             self.Moved_Left_New = self.Moved_Left_Old
             self.Moved_Right_New = self.Moved_Right_Old
                 
           
-        if(self.Orientation == "North"):
-        
+        if(self.Orientation == "North"):    
             if((self.y_inter_des - self.l_y) > 0):
                 self.Moved_Straight_New = self.Moved_Straight_Old + 1
                 ret = 5 #Straight
@@ -190,19 +231,14 @@ class SPUG:
                 ret = 1 #Left
                 
             elif((self.y_inter_des - self.l_y) < 0):
-                if(self.l_x > 0):
-                    self.Moved_Left_New = self.Moved_Left_Old + 1
-                    ret = 1 #Left
-                else:
-                    self.Moved_Right_New = Moved_Righ_Old + 1
-                    ret = 9 #Right
-                    
+                self.Moved_Reverse_New = self.Moved_Reverse_Old + 1
+                ret = 11 #Reverse
+
             elif((self.y_inter_des == self.l_y) and (self.x_inter_des == self.l_x)):
                 ret = 0 #Stop
                     
                     
-        elif(self.Orientation == "South"):
-        
+        elif(self.Orientation == "South"):  
             if((self.y_inter_des - self.l_y) < 0):
                 self.Moved_Straight_New = self.Moved_Straight_Old + 1
                 ret = 5 #Straight
@@ -216,19 +252,14 @@ class SPUG:
                 ret = 1 #Left
                 
             elif((self.y_inter_des - self.l_y) > 0):
-                if(self.l_x > 0):
-                    self.Moved_Right_New = self.Moved_Right_Old + 1
-                    ret = 9 #Left
-                else:
-                    self.Moved_Left_New = self.Moved_Left_Old + 1
-                    ret = 9 #Right 
+                self.Moved_Reverse_New = self.Moved_Reverse_Old + 1
+                ret = 11 #Reverse
                     
             elif((self.y_inter_des == self.l_y) and (self.x_inter_des == self.l_x)):
                 ret = 0 #Stop
                 
                     
-        elif(self.Orientation == "East"):
-        
+        elif(self.Orientation == "East"):  
             if((self.x_inter_des - self.l_x) > 0):
                 self.Moved_Straight_New = self.Moved_Straight_Old + 1
                 ret = 5 #Straight
@@ -242,19 +273,14 @@ class SPUG:
                 ret = 1 #Left
                 
             elif((self.x_inter_des - self.l_x) < 0):
-                if(self.l_y > 0):
-                    self.Moved_Left_New = self.Moved_Left_Old + 1
-                    ret = 1 #Left
-                else:
-                    self.Moved_Right_New = Moved_Righ_Old + 1
-                    ret = 9 #Right 
+                self.Moved_Reverse_New = self.Moved_Reverse_Old + 1
+                ret = 11 #Reverse
                     
             elif((self.y_inter_des == self.l_y) and (self.x_inter_des == self.l_x)):
                 ret = 0 #Stop
                 
                     
-        elif(self.Orientation == "West"):
-        
+        elif(self.Orientation == "West"): 
             if((self.x_inter_des - self.l_x) < 0):
                 self.Moved_Straight_New = self.Moved_Straight_Old + 1
                 ret = 5 #Straight
@@ -268,12 +294,8 @@ class SPUG:
                 ret = 1 #Left
                 
             elif((self.x_inter_des - self.l_x) > 0):
-                if(self.l_y > 0):
-                    self.Moved_Right_New = self.Moved_Right_Old + 1
-                    ret = 1 #Left
-                else:
-                    self.Moved_Left_New = self.Moved_Left_Old + 1
-                    ret = 9 #Right 
+                self.Moved_Reverse_New = self.Moved_Reverse_Old + 1
+                ret = 11 #Reverse
             
             elif((self.y_inter_des == self.l_y) and (self.x_inter_des == self.l_x)):
                 ret = 0 #Stop
@@ -281,26 +303,29 @@ class SPUG:
         #Set the inital junction value to 1        
         self.IntialJunction = 1
             
-        #Update if the target is reached         
+        #Update if the intermediate position is reached         
         if((self.y_inter_des == self.l_y) and (self.x_inter_des == self.l_x)):
             self.Inter_Target_Reached = 1
         else:
             self.Inter_Target_Reached = 0
             
-        #Update if the product coordinate is reached         
+        #Update if the product location coordinate is reached         
         if((self.y_pro_des == self.l_y) and (self.x_pro_des == self.l_x)):
             self.Product_Des_Reached = 1
         else:
             self.Product_Des_Reached = 0
+        #------------------------------------------------------------------------------------------------------------------------
         
+        #--------------------Print data for debugging-------------------------------------------------------------------------
         print("Orientation - %s"%self.Orientation)
         print("X Coordinate - %d "%self.l_x)
         print("Y Coordinate - %d "%self.l_y)
         print("Intermediate Destination Reached - %d "%self.Inter_Target_Reached)
         print("Product Destination Reached - %d "%self.Product_Des_Reached)
         print("Total Moves - %d "%self.Total_Moves)
+        #------------------------------------------------------------------------------------------------------------------------
         
-        #----------------------------------------------Write data into Google Firebase Cloud DIrectoy
+        #----------------------Write data into Google Firebase Cloud Database-------------------------------------------------
         # Create a dictionary to store the data before sending to the database
         data_to_upload = {
            'Time' : time.ctime(),
@@ -318,6 +343,7 @@ class SPUG:
             }
         #Post the data to the appropriate folder/branch within your database
         result = FBConn.post('/Cart12/SPUG_PI2PC_Coordinates_Data/',data_to_upload)
+        #------------------------------------------------------------------------------------------------------------------------
         
         #----------------------------------------Send MQTT Path Occupy Message-------------------------------------------------
         client = mqtt.Client("RaspBerry_PI_1") #create new instance
@@ -326,20 +352,40 @@ class SPUG:
         
         client.loop_start()
             
-        message = { "fromx" : str(self.l_x), "fromy" : str(self.l_y), \
+        message1 = { "fromx" : str(self.l_x), "fromy" : str(self.l_y), \
                      "tox" : str(self.x_inter_des), "toy" : str(str(self.y_inter_des))}    
             
-        msg1 = json.dumps(message)
+        msg1 = json.dumps(message1)
         
-        client.publish("pathOccupy/",msg1, 2)
+        client.publish("pointOccupy/",msg1, 2)
         
         time.sleep(0.1)
             
-        print("Paht Occupy message Sent from Pi :" +time.ctime() +" " +msg1)
-        #---------------------------------------------------------------------------------------------------------------------
+        print("Point Occupy message Sent from Pi :" +time.ctime() +" " +msg1)
+        #------------------------------------------------------------------------------------------------------------------------
+
+        #----------------------------------------Send MQTT Path Un-Occupy Message-------------------------------------------------
+        if(self.Is_Intermediate_DestinTion_Reached()):             
+            client = mqtt.Client("RaspBerry_PI_2") #create new instance
         
+            client.connect('192.168.1.9', 1883, 70) #connect to broker
+        
+            client.loop_start()
+            
+            message2 = { "fromx" : str(self.x_init), "fromy" : str(self.y_init), \
+                      "tox" : str(self.x_inter_des), "toy" : str(str(self.y_inter_des))}   
+            
+            msg2 = json.dumps(message2)
+        
+            client.publish("pointUnoccupy/",msg2, 2)
+        
+            time.sleep(0.1)
+            
+            print("Point Un-Occupy message Sent from Pi :" +time.ctime() +" " +msg2)
+        #------------------------------------------------------------------------------------------------------------------------- 
+        
+        #----------------------------------------Send MQTT Item Purchased Message-------------------------------------------------
         if(self.Is_Product_DestinTion_Reached()):
-            #----------------------------------------Send MQTT Item Purchased Message-------------------------------------------------
             client = mqtt.Client("RaspBerry_PI_3") #create new instance
         
             client.connect('192.168.1.9', 1883, 70) #connect to broker
@@ -347,7 +393,7 @@ class SPUG:
             client.loop_start()
             
             message3 = { "itemPurchasedX" : str(self.l_x), "itemPurchasedY" : str(self.l_y), \
-                         "cartName" : str(self.Cart_Number)}    
+                         "cartName" : "cart"+str(self.Cart_Number)}    
             
             msg3 = json.dumps(message3)
         
@@ -356,7 +402,7 @@ class SPUG:
             time.sleep(0.1)
             
             print("Item Purchased message Sent from Pi :" +time.ctime() +" " +msg3)
-            #---------------------------------------------------------------------------------------------------------------------         
+        #---------------------------------------------------------------------------------------------------------------------         
         
         #Return Value from the Calculations        
         return int(ret)
@@ -377,6 +423,9 @@ class SPUG:
                     
         elif(l_Movement_Type == 9):
             PWM.setMotorModel(4000,4000,-2000,-2000)
+            
+        elif(l_Movement_Type == 11):
+            PWM.setMotorModel(-600,-600,-600,-600)
                     
         elif(l_Movement_Type == 0):
             PWM.setMotorModel(0,0,0,0)
@@ -386,7 +435,7 @@ class SPUG:
         #------------------------------------------Ultrasonic sensor and Servo Motor Class
         self.Ultrasonic=Ultrasonic()
         
-        self.Pwm=Servo()
+        self.LED=Led()
         
         self.Junction = 0
 
@@ -404,7 +453,9 @@ class SPUG:
             IR_Right = GPIO.input(IR03)
         
         
-            if(Distance > 25.0):
+            if(Distance > 15.0):
+                self.LED.ledIndex(0x20,0,0,0)      #Red
+                self.LED.ledIndex(0x40,0,0,0)      #Red
                 if((IR_Left == 0) and (IR_Mid == 1) and (IR_Right == 0)):
                     self.Movement_Type = 5 #Move Forward
                     self.Junction = 0 #Clear the Junction Variable
@@ -431,30 +482,14 @@ class SPUG:
                     
             else:
                 self.Movement_Type = 0 #Stop Movement
+                self.LED.ledIndex(0x20,255,125,0)      #Orange
+                self.LED.ledIndex(0x40,255,125,0)      #Orange
 
             #Actuate the motors to move cart to the specific Coordinate
             self.Move_Cart(self.Movement_Type)
             
             
             if(self.Is_Intermediate_DestinTion_Reached()):
-                #--------------------------------------MQTT Communication Parameters--------------------------------------              
-                client = mqtt.Client("RaspBerry_PI_2") #create new instance
-        
-                client.connect('192.168.1.9', 1883, 70) #connect to broker
-        
-                client.loop_start()
-            
-                message2 = { "fromx" : str(self.x_init), "fromy" : str(self.y_init), \
-                          "tox" : str(self.x_inter_des), "toy" : str(str(self.y_inter_des))}   
-            
-                msg2 = json.dumps(message2)
-        
-                client.publish("pathUnoccupy/",msg2, 2)
-        
-                time.sleep(0.1)
-            
-                print("Paht Un-Occupy message Sent from Pi :" +time.ctime() +" " +msg2)
-                #--------------------------------------------------------------------------------------------------------------------- 
                 break
             
             time.sleep(0.2)
