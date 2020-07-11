@@ -30,9 +30,9 @@
 	(is_node_west n_1_3 n_0_3)	(is_node_west n_2_3 n_1_3)	(is_node_west n_3_3 n_2_3)	(is_node_west n_4_3 n_3_3)
 
 	(spug-at spug1 n_0_0)
-	(spug-at spug2 n_0_2)
+	(spug-at spug2 n_1_0)
 	(spug-at spug3 n_0_1)
-	(spug-at spug4 n_2_1)
+	(spug-at spug4 n_1_1)
 (not_same_spug spug1 spug2) (not_same_spug spug1 spug3) (not_same_spug spug1 spug4) (not_same_spug spug2 spug3) (not_same_spug spug2 spug4) (not_same_spug spug3 spug4) 
 
 	)

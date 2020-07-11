@@ -7,7 +7,7 @@ class PDDL_Generator:
     def Initialize_Values(self):
         self.map_size = 4
         self.number_spug = 4
-        self.start_point_spugs =[(0,0),(0,2), (0,1), (2,1)]
+        self.start_point_spugs =[(0,0),(1,0), (0,1), (1,1)]
         self.end_point_spug =(2,2)
         
     def Set_InitialValues(self, X_Coordinate, Y_Coordinate):
@@ -181,8 +181,16 @@ class PDDL_Generator:
     def Generate_PDDL_Script(self):
         self.write_pddl_problem(self.map_size, self.number_spug, self.start_point_spugs, self.end_point_spug)
         self.write_pddl_domain(self.number_spug)
-        self.PDDL_solve()
-					
+        try:
+            self.PDDL_solve()
+        except KeyError:
+            response = "All paths blocked. Please try again in 5 minutes. Thank you."
+            return response
+        response = "We are happy to help you!!"
+        return response
+           
+           
+       
 PDDL_Gen = PDDL_Generator()
 if __name__ == "__main__":
 
