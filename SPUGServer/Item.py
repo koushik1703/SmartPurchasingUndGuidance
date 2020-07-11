@@ -8,8 +8,8 @@ class Item:
         itemRoot = Element('Items')
 
         index = 0
-        for i in range(5):
-            for j in range(5):
+        for i in range(4):
+            for j in range(4):
                 itemElement = SubElement(itemRoot, 'Item')
                 itemElement.set("itemNum", str(index))
                 itemElement.set("name", "item" + str(index))
