@@ -44,7 +44,8 @@ public class ItemToBuyDialog extends AppCompatDialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    ItemPurchasedList.getInstance().add(new ItemPurchasedDetail(json.getString("itemPurchased"), json.getString("calorie"), json.getString("fat"), json.getString("carbohydrate"), json.getString("protein"), json.getString("salt"), json.getString("time")));
+                    String time = String.valueOf(System.currentTimeMillis());
+                    ItemPurchasedList.getInstance().add(new ItemPurchasedDetail(json.getString("itemPurchased"), json.getString("calorie"), json.getString("fat"), json.getString("carbohydrate"), json.getString("protein"), json.getString("salt"), time));
                     UnAssignCartView.listOfItems.append(json.getString("itemPurchased") + " = " + json.getString("cost") + ";");
 
                     String clientId = MqttClient.generateClientId();
