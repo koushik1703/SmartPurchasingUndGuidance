@@ -454,10 +454,14 @@ class SPUG:
         
         
             if(Distance > 15.0):
-                self.LED.ledIndex(0x20,0,0,0)      #Red
-                self.LED.ledIndex(0x40,0,0,0)      #Red
+                self.LED.ledIndex(0x20,0,0,0)      #Turn Off
+                self.LED.ledIndex(0x40,0,0,0)      #Turn off
+                
                 if((IR_Left == 0) and (IR_Mid == 1) and (IR_Right == 0)):
-                    self.Movement_Type = 5 #Move Forward
+                    if(self.Moved_Reverse_New != self.Moved_Reverse_Old):
+                        self.Movement_Type = 11 #Move Reverse
+                    else:
+                        self.Movement_Type = 5 #Move Forward
                     self.Junction = 0 #Clear the Junction Variable
                 
                 elif((IR_Left == 1) and (IR_Mid == 0) and (IR_Right == 0)):

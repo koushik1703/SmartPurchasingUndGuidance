@@ -94,14 +94,15 @@ class Shortest_Path:
                 client.disconnect() #Disconnect from the loop
                 
             else:
-                Rec_Blocking_Point = [x_coor_bp, y_coor_bp]    
-                BlockingPoints_New.append(Rec_Blocking_Point)
+                Rec_Blocking_Point = [x_coor_bp, y_coor_bp]
+                if not (Rec_Blocking_Point in points):          #Append a blocking point only if it is not a Product location
+                    BlockingPoints_New.append(Rec_Blocking_Point)
         
         client = mqtt.Client("RaspBerry_PI_Rec2") #create new instance
         
         client.on_message=on_message #attach function to callback
 
-        client.connect('192.168.1.2', 1883, 70) #connect to broker
+        client.connect('192.168.1.9', 1883, 70) #connect to broker
 
         client.subscribe("pointOccupied/12/", 2)
         
@@ -142,71 +143,79 @@ class Shortest_Path:
             
             self.PDDL_Generator.Generate_PDDL_Script()
             
-            print("Initial Coordinates - %s and Target Coordinates - %s"%(P1_Init,P2_Des))                         
-            print("----- Path Taken")
+            Response = self.PDDL_Generator.Get_Response()
             
-            while(P1_Init != P2_Des):
+            if(Response == "All paths blocked"):
+                print("All paths are blocked. Please wait for some time")
+                return
+                
+            else:
+                print("Initial Coordinates - %s and Target Coordinates - %s"%(P1_Init,P2_Des))                         
+                print("----- Path Taken")
             
-                with open("Plan_to_follow.txt", 'r') as PDDL_File:
-                    for line in PDDL_File:
-                        Cmd = line.split(' ')
-                        Direction_Line = Cmd[0].split('_')
-                        Dir = Direction_Line[1]
+                while(P1_Init != P2_Des):
+            
+                    with open("Plan_to_follow.txt", 'r') as PDDL_File:
+                        for line in PDDL_File:
+                            Cmd = line.split(' ')
+                            Direction_Line = Cmd[0].split('_')
+                            Dir = Direction_Line[1]
                     
-                        if(Dir == "north"):
-                            P1_Init[0] = P1_Init[0]
-                            P1_Init[1] = P1_Init[1] + 1
+                            if(Dir == "north"):
+                                P1_Init[0] = P1_Init[0]
+                                P1_Init[1] = P1_Init[1] + 1
 
-                        elif(Dir == "south"):
-                            P1_Init[0] = P1_Init[0]
-                            P1_Init[1] = P1_Init[1] - 1
+                            elif(Dir == "south"):
+                                P1_Init[0] = P1_Init[0]
+                                P1_Init[1] = P1_Init[1] - 1
 
-                        elif(Dir == "east"):
-                            P1_Init[0] = P1_Init[0] + 1
-                            P1_Init[1] = P1_Init[1]
+                            elif(Dir == "east"):
+                                P1_Init[0] = P1_Init[0] + 1
+                                P1_Init[1] = P1_Init[1]
 
-                        elif(Dir == "west"):
-                            P1_Init[0] = P1_Init[0] - 1
-                            P1_Init[1] = P1_Init[1]
+                            elif(Dir == "west"):
+                                P1_Init[0] = P1_Init[0] - 1
+                                P1_Init[1] = P1_Init[1]
                             
                         
-                        print("Next Point - %s"%P1_Init)
+                            print("Next Point - %s"%P1_Init)
                 
-                        X_Target = P1_Init[0]
+                            X_Target = P1_Init[0]
             
-                        Y_Target = P1_Init[1]
+                            Y_Target = P1_Init[1]
             
-                        self.SPUG_Run.Set_intermediate_destnation_position(X_Target,Y_Target)
+                            self.SPUG_Run.Set_intermediate_destnation_position(X_Target,Y_Target)
             
-                        self.SPUG_Run.Run_Cart12()
+                            self.SPUG_Run.Run_Cart12()
             
-                        if (self.SPUG_Run.Is_Intermediate_DestinTion_Reached()):
-                            continue
+                            if (self.SPUG_Run.Is_Intermediate_DestinTion_Reached()):
+                                continue
                             
-                #---------------------Receive Product location Coordinates as MQTT Message from Server-----------------
-                if(self.SPUG_Run.Is_Product_DestinTion_Reached()):
-                    def on_message(client, userdata, message):
-                        messageJson = json.loads(message.payload.decode())
+                    #---------------------Receive Product location Coordinates as MQTT Message from Server-----------------
+                    if(self.SPUG_Run.Is_Product_DestinTion_Reached()):
+                        def on_message(client, userdata, message):
+                            messageJson = json.loads(message.payload.decode())
                     
-                        print(message)
-                        print("Continue message received")
-                        client.loop_stop()
-                        client.disconnect()
+                            print(message)
+                            print("Continue message received")
+                            client.loop_stop()
+                            client.disconnect()
         
-                    client = mqtt.Client("RaspBerry_PI_Rec2") #create new instance
+                        client = mqtt.Client("RaspBerry_PI_Rec2") #create new instance
         
-                    client.on_message=on_message #attach function to callback
+                        client.on_message=on_message #attach function to callback
 
-                    client.connect('192.168.1.9', 1883, 70) #connect to broker
+                        client.connect('192.168.1.9', 1883, 70) #connect to broker
 
-                    client.subscribe("continue/12/", 2)
+                        client.subscribe("continue/12/", 2)
         
-                    print("Waiting for the continue message")
+                        print("Waiting for the continue message")
             
-                    client.loop_forever() #stop the loop
-                #--------------------------------------------------------------------------------------------------------------
+                        client.loop_forever() #stop the loop
+                    #--------------------------------------------------------------------------------------------------------------
                                   
-            print("--------------------------")
+                print("--------------------------")           
+                
 
 Sht_Pth = Shortest_Path()
 if __name__ == "__main__":

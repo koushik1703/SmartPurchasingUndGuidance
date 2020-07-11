@@ -24,6 +24,9 @@ class PDDL_Generator:
             self.start_point_spugs.append(Blocking_Point)
             self.number_spug = Index + 2
 		
+    def Get_Response(self):
+        return self.response
+			
     def write_pddl_domain (self, number_spug):
         spugs = range(0, number_spug)
         domain_file = open("domain_SPUG.pddl", "w")
@@ -98,8 +101,7 @@ class PDDL_Generator:
         
         domain_file.write("\t:effect (and (spug-at ?s1 ?n2) (not (spug-at ?s1 ?n1)) )\n\t)")
         domain_file.write("\n\n)")
-		
-        
+		 
     def write_pddl_problem(self, map_size, number_spug, start_point_spugs, end_point_spug):
 
         spugs = range (0, number_spug)
@@ -181,12 +183,15 @@ class PDDL_Generator:
     def Generate_PDDL_Script(self):
         self.write_pddl_problem(self.map_size, self.number_spug, self.start_point_spugs, self.end_point_spug)
         self.write_pddl_domain(self.number_spug)
-        self.PDDL_solve()
-					
+        self.response = "We are happy to help you!!"
+        try:
+            self.PDDL_solve()
+        except KeyError:
+            self.response = "All paths blocked"
+
+       
 PDDL_Gen = PDDL_Generator()
 if __name__ == "__main__":
 
     PDDL_Gen.Initialize_Values()
     PDDL_Gen.Generate_PDDL_Script()
-    
-    
