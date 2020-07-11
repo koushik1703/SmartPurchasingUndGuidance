@@ -20,6 +20,7 @@ public class QRCodeScanner extends AppCompatActivity {
     private CodeScanner mCodeScanner;
     Activity activity = this;
     AppCompatActivity appCompatActivity = this;
+    JSONObject json = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +34,6 @@ public class QRCodeScanner extends AppCompatActivity {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        JSONObject json = null;
                         try {
                             json = new JSONObject(result.getText());
                             ItemToBuyDialog itemToBuyDialog = new ItemToBuyDialog(json, appCompatActivity);

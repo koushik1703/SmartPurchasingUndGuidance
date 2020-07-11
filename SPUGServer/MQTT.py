@@ -10,7 +10,7 @@ import paho.mqtt.client as mqtt
 class MQTT:
 
     def __init__(self):
-        mqttIp = '192.168.137.1'
+        mqttIp = '192.168.1.9'
         MQTT.mqtt_subscriber = mqtt.Client('item tracking receiver')
         MQTT.mqtt_subscriber.on_message = MQTT.on_message
         MQTT.mqtt_subscriber.connect(mqttIp, 1883, 70)
@@ -36,6 +36,7 @@ class MQTT:
         pointRoot = ElementTree.parse("Data/Points.xml").getroot()
 
         if message.topic == 'item/':
+            print("received item/")
             itemPurchasedX = messageJson["itemPurchasedX"]
             itemPurchasedY = messageJson["itemPurchasedY"]
             cartName = messageJson["cartName"]
@@ -48,6 +49,7 @@ class MQTT:
             message = {"itemPurchased": itemRoot.find(itemQuery).get('name')}
             jmsg = json.dumps(message)
             MQTT.mqtt_publisher.publish('deviceUpdate/' + deviceIdOfCart + '/', jmsg, 2)
+            print("device update published")
 
         if message.topic == 'pointOccupy/':
             x = messageJson["x"]
@@ -87,11 +89,17 @@ class MQTT:
             if itemName == "over":
                 for i in range(5):
                     for j in range(5):
-                        pointQuery = QueryConstructor.constructWithTwoParameter("Point", "X", str(i), "Y", str(j))
+                        print("point iterator")
+                        pointQuery = QueryConstructor.getInstance().constructWithTwoParameter("Point", "X", str(i), "Y", str(j))
+                        print(pointQuery)
                         if pointRoot.find(pointQuery).get("isPointOccupied") == "True":
+                            print("point is occupied")
                             message = {"X": pointRoot.find(pointQuery).get("X"), "Y": pointRoot.find(pointQuery).get("Y")}
                             jmsg = json.dumps(message)
+                            print(message)
                             MQTT.mqtt_publisher.publish('pointOccupied/'+ cartName + '/', jmsg, 2)
+                            print("published")
+
 
                 message = {"X": "-1", "Y": "-1"}
                 jmsg = json.dumps(message)
