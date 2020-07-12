@@ -87,8 +87,8 @@ class MQTT:
             MQTT.mqtt_publisher.publish('buyItemFromServer/' + cartName + '/', jmsg, 2)
 
             if itemName == "over":
-                for i in range(5):
-                    for j in range(5):
+                for i in range(4):
+                    for j in range(4):
                         print("point iterator")
                         pointQuery = QueryConstructor.getInstance().constructWithTwoParameter("Point", "X", str(i), "Y", str(j))
                         print(pointQuery)
