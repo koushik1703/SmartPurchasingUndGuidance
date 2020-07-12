@@ -1,13 +1,14 @@
 import time
 from Motor import *
 from Ultrasonic import *
+from Buzzer import *
 import RPi.GPIO as GPIO
 from Led import *
 from PCA9685 import PCA9685
 import json
 import paho.mqtt.client as mqtt #import the client1
 
-#Google FIrebase Requirements
+#Google Firebase Requirements
 from firebase import firebase
 import datetime
 
@@ -32,6 +33,7 @@ FBConn = firebase.FirebaseApplication('https://spug-ca0fe.firebaseio.com/', None
 class SPUG:
 
     def Initialize_Values(self):
+        
         #Itial position 
         self.x_init = 0
         self.y_init = 0
@@ -52,7 +54,7 @@ class SPUG:
         self.Orientation = "North"
         
         #SPUG Number
-        self.Cart_Number = 12
+        self.Cart_Number = 4
     
         #Variable to calculate the Position of SPUG after movement
         self.Moved_Straight_New = 0
@@ -342,7 +344,7 @@ class SPUG:
            'Total Moves'              : self.Total_Moves 
             }
         #Post the data to the appropriate folder/branch within your database
-        result = FBConn.post('/Cart12/SPUG_PI2PC_Coordinates_Data/',data_to_upload)
+        result = FBConn.post('/Cart4/SPUG_PI2PC_Coordinates_Data/',data_to_upload)
         #------------------------------------------------------------------------------------------------------------------------
         
         #----------------------------------------Send MQTT Path Occupy Message-------------------------------------------------
@@ -352,8 +354,7 @@ class SPUG:
         
         client.loop_start()
             
-        message1 = { "fromx" : str(self.l_x), "fromy" : str(self.l_y), \
-                     "tox" : str(self.x_inter_des), "toy" : str(str(self.y_inter_des))}    
+        message1 = {"X" : str(self.x_inter_des), "Y" : str(str(self.y_inter_des))}    
             
         msg1 = json.dumps(message1)
         
@@ -372,13 +373,12 @@ class SPUG:
         
             client.loop_start()
             
-            message2 = { "fromx" : str(self.x_init), "fromy" : str(self.y_init), \
-                      "tox" : str(self.x_inter_des), "toy" : str(str(self.y_inter_des))}   
+            message2 = { "X" : str(self.x_inter_des), "Y" : str(str(self.y_inter_des))}   
             
             msg2 = json.dumps(message2)
         
             client.publish("pointUnoccupy/",msg2, 2)
-        
+            
             time.sleep(0.1)
             
             print("Point Un-Occupy message Sent from Pi :" +time.ctime() +" " +msg2)
@@ -398,10 +398,14 @@ class SPUG:
             msg3 = json.dumps(message3)
         
             client.publish("item/",msg3, 2)
-        
+            
             time.sleep(0.1)
             
             print("Item Purchased message Sent from Pi :" +time.ctime() +" " +msg3)
+            
+            self.Buzzer.run('1')
+            time.sleep(0.5)
+            self.Buzzer.run('0')
         #---------------------------------------------------------------------------------------------------------------------         
         
         #Return Value from the Calculations        
@@ -410,25 +414,44 @@ class SPUG:
     def Move_Cart(self,l_Movement_Type):
         
         if(l_Movement_Type == 5):
-            PWM.setMotorModel(600,600,600,600)
+            self.LED.ledIndex(0xFF,0,0,0)        #Turn Off
+            self.LED.ledIndex(0xF0,0,255,0)      #Green
+            #PWM.setMotorModel(800,800,800,800)
+            #time.sleep(0.1)
+            #PWM.setMotorModel(0,0,0,0)
                     
         elif(l_Movement_Type == 1):
-            PWM.setMotorModel(-2000,-2000,4000,4000)
+            self.LED.ledIndex(0xFF,0,0,0)        #Turn Off
+            self.LED.ledIndex(0x3C,0,255,0)      #Green
+            #PWM.setMotorModel(-2000,-2000,4000,4000)
+            #time.sleep(0.2)
                     
         elif(l_Movement_Type == 3):
-            PWM.setMotorModel(-1200,-1200,2000,2000)
+            self.LED.ledIndex(0xFF,0,0,0)        #Turn Off
+            self.LED.ledIndex(0x3C,0,0,0)      #Green
+            #PWM.setMotorModel(-1200,-1200,2000,2000)
+            #time.sleep(0.2)
                     
         elif(l_Movement_Type == 7):
-            PWM.setMotorModel(2000,2000,-1200,-1200)
+            self.LED.ledIndex(0xFF,0,0,0)        #Turn Off
+            self.LED.ledIndex(0xC3,0,0,0)      #Green
+            #PWM.setMotorModel(2000,2000,-1200,-1200)
+            #time.sleep(0.2)
                     
         elif(l_Movement_Type == 9):
-            PWM.setMotorModel(4000,4000,-2000,-2000)
+            self.LED.ledIndex(0xFF,0,0,0)        #Turn Off
+            self.LED.ledIndex(0xC3,0,255,0)      #Green
+            #PWM.setMotorModel(4000,4000,-2000,-2000)
+            #time.sleep(0.5)
             
         elif(l_Movement_Type == 11):
-            PWM.setMotorModel(-600,-600,-600,-600)
+            self.LED.ledIndex(0xFF,0,0,0)        #Turn Off
+            self.LED.ledIndex(0x0F,0,255,0)      #Green
+            #PWM.setMotorModel(-600,-600,-600,-600)
                     
         elif(l_Movement_Type == 0):
-            PWM.setMotorModel(0,0,0,0)
+            time.sleep(0.001)
+            #PWM.setMotorModel(0,0,0,0)
         
     def Run_Cart12(self):
     
@@ -436,6 +459,8 @@ class SPUG:
         self.Ultrasonic=Ultrasonic()
         
         self.LED=Led()
+        
+        self.Buzzer=Buzzer()
         
         self.Junction = 0
 
@@ -453,9 +478,7 @@ class SPUG:
             IR_Right = GPIO.input(IR03)
         
         
-            if(Distance > 15.0):
-                self.LED.ledIndex(0x20,0,0,0)      #Turn Off
-                self.LED.ledIndex(0x40,0,0,0)      #Turn off
+            if(Distance > 5.0):
                 
                 if((IR_Left == 0) and (IR_Mid == 1) and (IR_Right == 0)):
                     if(self.Moved_Reverse_New != self.Moved_Reverse_Old):
@@ -488,6 +511,8 @@ class SPUG:
                 self.Movement_Type = 0 #Stop Movement
                 self.LED.ledIndex(0x20,255,125,0)      #Orange
                 self.LED.ledIndex(0x40,255,125,0)      #Orange
+                time.sleep(1)
+                self.LED.ledIndex(0x60,0,0,0)
 
             #Actuate the motors to move cart to the specific Coordinate
             self.Move_Cart(self.Movement_Type)
@@ -495,8 +520,6 @@ class SPUG:
             
             if(self.Is_Intermediate_DestinTion_Reached()):
                 break
-            
-            time.sleep(0.2)
         
 l_spug=SPUG()
 # Main program logic follows:

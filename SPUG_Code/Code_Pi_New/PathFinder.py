@@ -68,7 +68,7 @@ class Shortest_Path:
 
         client.connect('192.168.1.9', 1883, 70) #connect to broker
 
-        client.subscribe("buyItemFromServer/12/", 2)
+        client.subscribe("buyItemFromServer/4/", 2)
         
         print("Receiving the coordinates from server")
         
@@ -95,7 +95,8 @@ class Shortest_Path:
                 
             else:
                 Rec_Blocking_Point = [x_coor_bp, y_coor_bp]
-                if not (Rec_Blocking_Point in points):          #Append a blocking point only if it is not a Product location
+                print("Receieved Point %s"%Rec_Blocking_Point)
+                if not (Rec_Blocking_Point in Points_New):          #Append a blocking point only if it is not a Product location
                     BlockingPoints_New.append(Rec_Blocking_Point)
         
         client = mqtt.Client("RaspBerry_PI_Rec2") #create new instance
@@ -104,7 +105,7 @@ class Shortest_Path:
 
         client.connect('192.168.1.9', 1883, 70) #connect to broker
 
-        client.subscribe("pointOccupied/12/", 2)
+        client.subscribe("pointOccupied/4/", 2)
         
         print("Receiving the blocking point coordinates from server")
         
@@ -207,14 +208,16 @@ class Shortest_Path:
 
                         client.connect('192.168.1.9', 1883, 70) #connect to broker
 
-                        client.subscribe("continue/12/", 2)
+                        client.subscribe("continue/4/", 2)
         
                         print("Waiting for the continue message")
             
                         client.loop_forever() #stop the loop
                     #--------------------------------------------------------------------------------------------------------------
                                   
-                print("--------------------------")           
+                print("--------------------------")
+                
+        self.SPUG_Run.LED.ledIndex(0xFF,0,0,0)
                 
 
 Sht_Pth = Shortest_Path()
