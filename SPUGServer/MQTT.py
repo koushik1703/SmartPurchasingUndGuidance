@@ -10,7 +10,7 @@ import paho.mqtt.client as mqtt
 class MQTT:
 
     def __init__(self):
-        mqttIp = '192.168.1.9'
+        mqttIp = '192.168.137.1'
         MQTT.mqtt_subscriber = mqtt.Client('item tracking receiver')
         MQTT.mqtt_subscriber.on_message = MQTT.on_message
         MQTT.mqtt_subscriber.connect(mqttIp, 1883, 70)

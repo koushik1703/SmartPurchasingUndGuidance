@@ -19,6 +19,7 @@ public class UnAssignCartView extends AppCompatActivity {
     String hostUrl = MainActivity.hostUrl;
     AppCompatActivity appCompatActivity = this;
     static TextView listOfItems = null;
+    static int showQrView = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +28,8 @@ public class UnAssignCartView extends AppCompatActivity {
 
         Button giveButton = findViewById(R.id.giveButton);
         listOfItems = findViewById(R.id.ListOfItem);
+
+        final Intent intent = new Intent(getApplicationContext(), QRCodeScanner.class);
 
         giveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,8 +76,10 @@ public class UnAssignCartView extends AppCompatActivity {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                Intent intent = new Intent(getApplicationContext(), QRCodeScanner.class);
-                startActivity(intent);
+                if(showQrView == 1) {
+                    showQrView = 0;
+                    startActivity(intent);
+                }
             }
 
             @Override

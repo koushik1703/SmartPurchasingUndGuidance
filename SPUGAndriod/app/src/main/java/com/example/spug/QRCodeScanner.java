@@ -47,6 +47,20 @@ public class QRCodeScanner extends AppCompatActivity {
         });
 
         mCodeScanner.startPreview();
+
+        /*scannerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    String str = "{\"itemPurchased\": \"item1\", \"cost\": \"114\", \"calorie\": \"1487\", \"fat\": \"150\", \"carbohydrate\": \"95\", \"protein\": \"1\", \"salt\": \"1\"}";
+                    json = new JSONObject(str);
+                    ItemToBuyDialog itemToBuyDialog = new ItemToBuyDialog(json, appCompatActivity);
+                    itemToBuyDialog.show(getSupportFragmentManager(), "Item to buy dialog");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });*/
     }
 
     @Override

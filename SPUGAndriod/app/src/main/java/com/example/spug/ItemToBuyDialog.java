@@ -34,6 +34,7 @@ public class ItemToBuyDialog extends AppCompatDialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_item_to_buy, null);
         String item = "";
+
         try {
             item = this.json.getString("itemPurchased");
         } catch (JSONException e) {
@@ -58,6 +59,7 @@ public class ItemToBuyDialog extends AppCompatDialogFragment {
                             public void onSuccess(IMqttToken asyncActionToken) {
                                 try {
                                     previousActivity.finish();
+                                    UnAssignCartView.showQrView = 1;
                                     MqttMessage message = new MqttMessage();
                                     String jsonMessage = "{\"toBuyItem\": " + "\"" + "YES" + "\"" +", \"deviceId\": " + "\"" + MainActivity.uniqueID + "\"" + ", \"itemPurchased\": " + "\"" + json.getString("itemPurchased") +"\"" +"}";
                                     message.setPayload(jsonMessage.getBytes());
@@ -94,6 +96,7 @@ public class ItemToBuyDialog extends AppCompatDialogFragment {
                         public void onSuccess(IMqttToken asyncActionToken) {
                             try {
                                 previousActivity.finish();
+                                UnAssignCartView.showQrView = 1;
                                 MqttMessage message = new MqttMessage();
                                 String jsonMessage = "{\"toBuyItem\": " + "\"" + "NO" + "\"" +", \"deviceId\": " + "\"" + MainActivity.uniqueID + "\"" + ", \"itemPurchased\": " + "\"" + json.getString("itemPurchased") +"\"" +"}";
                                 message.setPayload(jsonMessage.getBytes());
