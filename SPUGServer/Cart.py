@@ -6,7 +6,7 @@ class Cart:
     def __init__(self):
         cartRoot = Element('Carts')
 
-        for i in range(20):
+        for i in range(8):
             cartElement = SubElement(cartRoot, 'Cart')
             cartElement.set("cartNum", str(i))
             cartElement.set("name", "cart" + str(i))
