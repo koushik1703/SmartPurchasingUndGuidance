@@ -1,6 +1,7 @@
 Team Introduction :- Hallo Good Day we are Team 8, myself so and so
 
-Project introduction :- SPUG - Smart Purchasing and Guidance
+Project introduction :- SPUG - Smart Purchasing and Guidance is a system that helps the customers to shop faster by providing 
+                         comfort features.
 
 Component Introduction - SPUG system phyically comprises of four components 
 

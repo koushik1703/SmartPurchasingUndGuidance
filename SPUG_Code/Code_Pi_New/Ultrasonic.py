@@ -21,7 +21,7 @@ class Ultrasonic:
      
     def get_distance(self):
         distance_cm=[0,0,0,0,0]
-        for i in range(3):
+        for i in range(5):
             self.send_trigger_pulse()
             self.wait_for_echo(True,10000)
             start = time.time()
