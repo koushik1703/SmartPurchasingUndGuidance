@@ -1,9 +1,9 @@
 <Carts>
   <Cart cartNum="0" name="cart0" isAssigned="False" AssignedToDevice=""/>
-  <Cart cartNum="1" name="cart1" isAssigned="False" AssignedToDevice=""/>
+  <Cart cartNum="1" name="cart1" isAssigned="True" AssignedToDevice=""/>
   <Cart cartNum="2" name="cart2" isAssigned="False" AssignedToDevice=""/>
-  <Cart cartNum="3" name="cart3" isAssigned="False" AssignedToDevice=""/>
-  <Cart cartNum="4" name="cart4" isAssigned="False" AssignedToDevice=""/>
+  <Cart cartNum="3" name="cart3" isAssigned="True" AssignedToDevice=""/>
+  <Cart cartNum="4" name="cart4" isAssigned="True" AssignedToDevice=""/>
   <Cart cartNum="5" name="cart5" isAssigned="False" AssignedToDevice=""/>
   <Cart cartNum="6" name="cart6" isAssigned="False" AssignedToDevice=""/>
   <Cart cartNum="7" name="cart7" isAssigned="False" AssignedToDevice=""/>

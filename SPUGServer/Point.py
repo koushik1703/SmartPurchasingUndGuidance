@@ -16,8 +16,8 @@ class Point:
                 pointElement.set("Y", str(y))
                 randomNumber = randrange(16)
                 if(randomNumber >= 3):
-                    pointElement.set("isPointOccupied", str(True))
-                else:
                     pointElement.set("isPointOccupied", str(False))
+                else:
+                    pointElement.set("isPointOccupied", str(True))
 
         XMLParser.getInstance().writeAndPretify(pointRoot, "Data/Points.xml")
