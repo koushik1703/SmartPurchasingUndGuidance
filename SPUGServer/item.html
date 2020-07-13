@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <title>Item Details</title>
+</head>
+<body>
+  <div class="container">
+    <canvas id="myChart"></canvas>
+  </div>
+
+  <script>
+    let myChart = document.getElementById('myChart').getContext('2d');
+
+    let request = new XMLHttpRequest();
+    request.open("GET", "http://127.0.0.1:5000/getDetail");
+    request.send();
+    request.onload = () => {
+        var stringValue = request.response
+        stringValue = stringValue.split("\"").join("")
+        var array = stringValue.split(', ');
+        let massPopChart = new Chart(myChart, {
+      type:'bar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+      data:{
+        labels:['item0', 'item1', 'item2', 'item3', 'item4', 'item5', 'item6', 'item7', 'item8', 'item9', 'item10', 'item11', 'item12', 'item13', 'item14', 'item15'],
+        datasets:[{
+          label:'Item Count',
+          data:array
+        }]
+      }});
+    }
+
+
+  </script>
+</body>
+</html>
