@@ -481,7 +481,7 @@ class SPUG:
             IR_Right = GPIO.input(IR03)
         
         
-            if(Distance > 5.0):
+            if(Distance > 15.0):
                 
                 if((IR_Left == 0) and (IR_Mid == 1) and (IR_Right == 0)):
                     if(self.Moved_Reverse_New != self.Moved_Reverse_Old):
