@@ -25,6 +25,7 @@ GPIO.setup(IR01,GPIO.IN)
 GPIO.setup(IR02,GPIO.IN)
 GPIO.setup(IR03,GPIO.IN)
 
+#--------------------------Google Firebase link
 # Create the connection to our Firebase database - don't forget to change the URL!
 FBConn = firebase.FirebaseApplication('https://spug-ca0fe.firebaseio.com/', None)
 
@@ -219,6 +220,7 @@ class SPUG:
             self.Moved_Right_New = self.Moved_Right_Old
                 
           
+        #Calculate the next move  
         if(self.Orientation == "North"):    
             if((self.y_inter_des - self.l_y) > 0):
                 self.Moved_Straight_New = self.Moved_Straight_Old + 1
@@ -403,6 +405,7 @@ class SPUG:
             
             print("Item Purchased message Sent from Pi :" +time.ctime() +" " +msg3)
             
+            self.LED.ledIndex(0xFF,0,0,0) # Switch off all LED's
             self.Buzzer.run('1')
             time.sleep(0.5)
             self.Buzzer.run('0')
@@ -453,7 +456,7 @@ class SPUG:
             time.sleep(0.001)
             #PWM.setMotorModel(0,0,0,0)
         
-    def Run_Cart12(self):
+    def Run_Cart4(self):
     
         #------------------------------------------Ultrasonic sensor and Servo Motor Class
         self.Ultrasonic=Ultrasonic()
@@ -478,7 +481,7 @@ class SPUG:
             IR_Right = GPIO.input(IR03)
         
         
-            if(Distance > 5.0):
+            if(Distance > 15.0):
                 
                 if((IR_Left == 0) and (IR_Mid == 1) and (IR_Right == 0)):
                     if(self.Moved_Reverse_New != self.Moved_Reverse_Old):
@@ -528,7 +531,7 @@ if __name__ == '__main__':
     
     try:
         l_spug.Initialize_Values()
-        l_spug.Run_Cart12()
+        l_spug.Run_Cart4()
         
     except KeyboardInterrupt:  # When 'Ctrl+C' is pressed, the child program destroy() will be  executed.
         PWM.setMotorModel(0,0,0,0)
