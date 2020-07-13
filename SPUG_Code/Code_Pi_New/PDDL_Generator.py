@@ -23,7 +23,7 @@ class PDDL_Generator:
             Blocking_Point = Coordinates
             self.start_point_spugs.append(Blocking_Point)
             self.number_spug = Index + 2
-		
+            
     def Get_Response(self):
         return self.response
 			
