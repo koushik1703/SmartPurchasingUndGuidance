@@ -25,7 +25,7 @@ SPUG calcultes the shortest path with the help of AI Planner and actuates the LE
 
 # Architecture
 
-![arch](https://user-images.githubusercontent.com/45932617/96615694-ec94c580-1301-11eb-8ded-8c1d4d598aa3.png)
+![arch](https://user-images.githubusercontent.com/45932617/96632422-f5909180-1317-11eb-9a98-0950bfdd6f20.png)
 
 
 # Sequence Diagram
